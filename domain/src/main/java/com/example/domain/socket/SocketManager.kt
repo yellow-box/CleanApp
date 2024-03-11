@@ -1,14 +1,11 @@
 package com.example.domain.socket
 
-import java.io.InputStream
-import java.io.OutputStream
-import kotlin.coroutines.coroutineContext
 
-class SocketManager : ILogicAction, ISocket {
+import java.nio.ByteBuffer
+
+class SocketManager : ILogicAction {
     private var socket: ISocket? = null
     private var executor: Executor? = null
-    private var reader : InputStream? =null
-    private var writer:OutputStream?= null
     override fun initSetting(socket: ISocket, executor: Executor) {
         this.socket = socket
         this.executor = executor
@@ -22,21 +19,23 @@ class SocketManager : ILogicAction, ISocket {
         socket?.disconnect()
     }
 
-    override fun write(byteArray: ByteArray) {
+    fun write(byteArray: ByteArray) {
+        executor?.runInChild {
+            socket?.write(byteArray.size.toByteArray())
+            socket?.write(byteArray)
+        }
+    }
+
+    fun read() {
         executor?.runInChild{
-            writer?.write(byteArray.size)
-            writer?.write(byteArray)
+            while (true){
+                socket?.read()
+            }
         }
+
     }
 
-    override fun read(byteArray: ByteArray): Int {
-        executor.run {
-
-        }
-        return socket?.read(byteArray) ?: 0
-    }
-
-    override fun isConnected(): Boolean {
+    fun isConnected(): Boolean {
         return socket != null && socket!!.isConnected()
     }
 
@@ -46,5 +45,11 @@ class SocketManager : ILogicAction, ISocket {
 
     override fun sendHeartBeat() {
 
+    }
+
+    fun Int.toByteArray(): ByteArray {
+        val buffer = ByteBuffer.allocate(4)
+        buffer.putInt(this)
+        return buffer.array()
     }
 }

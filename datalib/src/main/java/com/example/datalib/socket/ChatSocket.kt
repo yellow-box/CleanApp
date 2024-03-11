@@ -2,16 +2,22 @@ package com.example.datalib.socket
 
 import com.example.domain.socket.ISocket
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 
 class ChatSocket : ISocket {
     private var realSocket: Socket? = null
     private var isConnected = false
+    private var reader: InputStream? = null
+    private var writer: OutputStream? = null
     override fun connect(host: String, port: Int) {
         realSocket = Socket()
         try {
             realSocket!!.connect(InetSocketAddress(host, port))
+            reader = realSocket!!.getInputStream()
+            writer = realSocket!!.getOutputStream()
         } catch (e: IOException) {
             println("fail to connect to ${host}:${port},e=${e.stackTrace}")
         }
@@ -24,17 +30,11 @@ class ChatSocket : ISocket {
     }
 
     override fun write(byteArray: ByteArray) {
-        realSocket
+        writer?.write(byteArray)
     }
 
     override fun read(byteArray: ByteArray): Int {
-        while (true){
-            if (realSocket?.isConnected == true){
-                return 0
-            }
-            val curRead = 0
-
-        }
+        return reader?.read(byteArray) ?: -1
     }
 
     override fun isConnected(): Boolean {
