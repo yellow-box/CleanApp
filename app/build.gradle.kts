@@ -36,7 +36,9 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":domain"))
+    implementation(project(":datalib"))
+    implementation(project(":platformrelated"))
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")

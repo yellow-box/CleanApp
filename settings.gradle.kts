@@ -17,3 +17,4 @@ rootProject.name = "CleanApp"
 include(":app")
 include(":datalib")
 include(":domain")
+include(":platformrelated")
