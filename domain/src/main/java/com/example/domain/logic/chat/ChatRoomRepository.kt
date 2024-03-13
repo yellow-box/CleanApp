@@ -1,7 +1,9 @@
 package com.example.domain.logic.chat
 
+import com.example.domain.ApiService
 import com.example.domain.base.GsonUtil
 import com.example.domain.socket.DataOperator
+import com.example.domain.socket.ILogicAction
 import com.example.domain.socket.SocketManager
 
 
@@ -25,7 +27,8 @@ class ChatRoomRepository : IChatRoomRepository{
             this.content = content
             this.sendUid = uid
         }
-        SocketManager.instance.write(
+        val socketManager = ApiService[ILogicAction::class.java]?:return
+        socketManager.write(
             DataOperator.constructData(
                 DataOperator.OP_SEND_MESSAGE_ALL,
                 GsonUtil.gson.toJson(roomMsg).toByteArray()
