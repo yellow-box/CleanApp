@@ -16,6 +16,7 @@ class MainRouter {
 
     fun dealData(byteArray: ByteArray) {
         val parseResult = DataOperator.parseRawData(byteArray)
+        println("client receive from server seq:${parseResult.first},:type:${parseResult.second},content:${parseResult.third}")
         msgDealerS.forEach {
             if (it.matchType(parseResult.second)) {
                 it.dealData(parseResult.third)

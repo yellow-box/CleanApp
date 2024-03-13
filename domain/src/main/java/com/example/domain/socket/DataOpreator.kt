@@ -1,5 +1,7 @@
 package com.example.domain.socket
 
+import com.example.domain.ApiService
+import com.example.domain.device.IToast
 import java.lang.Exception
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

@@ -16,6 +16,7 @@ class ChatSocket : ISocket {
         realSocket = Socket()
         try {
             realSocket!!.connect(InetSocketAddress(host, port))
+            println("success connect to ${host}:${port}")
             reader = realSocket!!.getInputStream()
             writer = realSocket!!.getOutputStream()
         } catch (e: IOException) {

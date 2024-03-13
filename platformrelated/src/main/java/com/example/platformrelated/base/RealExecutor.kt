@@ -1,5 +1,6 @@
-package com.example.domain.socket
+package com.example.platformrelated.base
 
+import com.example.domain.socket.Executor
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
