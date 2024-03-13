@@ -20,6 +20,7 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatRoomBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         roomId = intent.getIntExtra(ChatViewModel.PARAM_ROOM_ID, 0)
         chatViewModel = ViewModelProvider(this, ChatViewModelFactory())[ChatViewModel::class.java]
         initEvent()
