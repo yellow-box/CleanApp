@@ -1,6 +1,9 @@
 package com.example.datalib.socket
 
 import com.example.domain.socket.ISocket
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -13,14 +16,15 @@ class ChatSocket : ISocket {
     private var reader: InputStream? = null
     private var writer: OutputStream? = null
     override fun connect(host: String, port: Int) {
-        realSocket = Socket()
-        try {
-            realSocket!!.connect(InetSocketAddress(host, port))
-            println("success connect to ${host}:${port}")
-            reader = realSocket!!.getInputStream()
-            writer = realSocket!!.getOutputStream()
-        } catch (e: IOException) {
-            println("fail to connect to ${host}:${port},e=${e.stackTrace}")
+        CoroutineScope(Dispatchers.IO).launch {
+            realSocket = Socket(host, port)
+            try {
+                println("success connect to ${host}:${port}")
+                reader = realSocket!!.getInputStream()
+                writer = realSocket!!.getOutputStream()
+            } catch (e: IOException) {
+                println("fail to connect to ${host}:${port},e=${e.stackTrace}")
+            }
         }
     }
 

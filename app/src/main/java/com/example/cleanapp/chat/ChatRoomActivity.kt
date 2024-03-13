@@ -31,6 +31,13 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
             it.layoutManager = LinearLayoutManager(this)
             it.adapter = adapter
         }
+        binding.sendBtn.setOnClickListener {
+            val msg = VRoomMsg()
+            msg.roomId = roomId
+            msg.sender = ApiService[ILoginUser::class.java]?.getUid()?:0
+            msg.content = binding.sendEt.text.toString()
+            chatViewModel.sendMsg(msg)
+        }
         lifecycleScope.launch {
             chatViewModel.chatStateFlow.collect {
                 when (it) {
