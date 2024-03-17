@@ -1,10 +1,8 @@
 package com.example.domain.logic.chat
 
 import com.example.domain.ApiService
-import com.example.domain.base.GsonUtil
-import com.example.domain.socket.DataOperator
 import com.example.domain.socket.ILogicAction
-import com.example.domain.socket.SocketManager
+
 
 class ChatDataSource : IChatRoomRepository.NewMsgListener {
     var receiveMsgListener: IChatRoomRepository.NewMsgListener? = null
@@ -23,13 +21,18 @@ class ChatDataSource : IChatRoomRepository.NewMsgListener {
             this.content = msg
             this.sendUid = fromUid
         }
-        val socketManager = ApiService[ILogicAction::class.java]?:return
-        socketManager.write(
-            DataOperator.constructData(
-                DataOperator.OP_SEND_MESSAGE_ALL,
-                GsonUtil.gson.toJson(roomMsg).toByteArray()
-            )
-        )
+        val socketManager = ApiService[ILogicAction::class.java] ?: return
+//        val rawDataOperator = ApiService[RawDataOperator<RawDataStruct>::class.java] ?: return
+//
+//        socketManager.write(
+//            rawDataOperator.constructData(
+//                RawDataStruct(
+//                    0L,
+//                    OpConst.OP_SEND_MESSAGE_ALL,
+//                    GsonUtil.gson.toJson(roomMsg).toByteArray()
+//                )
+//            )
+//        )
     }
 
     fun fetchHistoryMessages(roomId: Int): List<RoomMsg> {

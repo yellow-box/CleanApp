@@ -16,7 +16,7 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
     private lateinit var binding: ActivityChatRoomBinding
     private lateinit var chatViewModel: ChatViewModel
     private val adapter: ChatAdapter = ChatAdapter()
-    var roomId = 0
+    var roomId = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatRoomBinding.inflate(layoutInflater)
@@ -36,6 +36,7 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
             msg.roomId = roomId
             msg.sender = ApiService[ILoginUser::class.java]?.getUid()?:0
             msg.content = binding.sendEt.text.toString()
+            binding.sendEt.setText("")
             chatViewModel.sendMsg(msg)
         }
         lifecycleScope.launch {

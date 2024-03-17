@@ -12,7 +12,9 @@ import com.example.domain.logic.SocketInfo
 import com.example.domain.socket.ILogicAction
 import com.example.domain.socket.ISocket
 import com.example.domain.socket.ISocketMsgDealer
+import com.example.domain.socket.RawDataOperator
 import com.example.domain.socket.SocketManager
+import com.example.domain.socket.msgdealer.RawDataOperatorImpl
 import com.example.platformrelated.base.RealExecutor
 import com.example.platformrelated.base.ToastHelper
 
@@ -32,6 +34,7 @@ class CleanApplication : Application(), IGlobalContextProvider<Context> {
         ApiService.register(IToast::class.java, ToastHelper())
         ApiService.register(ILogicAction::class.java, SocketManager())
         ApiService.register(ILoginUser::class.java, LoginUserDatasource())
+        ApiService.register(RawDataOperator::class.java,RawDataOperatorImpl())
         connectSocket()
     }
 

@@ -4,10 +4,10 @@ import com.example.domain.device.ILoginUser
 
 class LoginUserDatasource:ILoginUser {
     override fun getUid(): Int {
-        return 4
+        return 5
     }
 
     override fun getName(): String {
-       return "小孔"
+       return "小吴"
     }
 }

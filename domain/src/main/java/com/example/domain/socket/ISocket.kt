@@ -5,9 +5,15 @@ interface ISocket {
 
     fun disconnect()
 
+    fun setOnConnectListener(l: ConnectListener)
     fun write(byteArray: ByteArray)
 
     fun read(byteArray: ByteArray): Int
-    fun isConnected():Boolean
+
+    fun read(byteArray: ByteArray, startIndex: Int, length: Int): Int
+    fun isConnected(): Boolean
+    interface ConnectListener {
+        fun onConnect()
+    }
 
 }

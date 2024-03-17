@@ -95,7 +95,7 @@ class ChatItemSelfVh(parent: ViewGroup, layoutId: Int) :
         return GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = 80f
-            setColor(Color.parseColor("aaD721"))
+            setColor(Color.parseColor("#aaD721"))
         }
     }
 }
@@ -106,7 +106,7 @@ class ChatItemOtherVh(parent: ViewGroup, layoutId: Int) :
         return GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadius = 80f
-            setColor(Color.parseColor("ffD721"))
+            setColor(Color.parseColor("#ffD721"))
         }
     }
 }

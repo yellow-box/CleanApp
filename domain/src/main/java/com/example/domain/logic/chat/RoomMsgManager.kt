@@ -1,5 +1,6 @@
 package com.example.domain.logic.chat
 
+import com.example.domain.socket.msgdealer.MainRouter
 import com.example.domain.socket.msgdealer.PushMsgDealer
 import java.util.LinkedList
 
@@ -8,7 +9,7 @@ class RoomMsgManager : IChatRoomRepository.NewMsgListener {
     var pushMsgListener: PushMsgListener? = null
 
     init {
-        PushMsgDealer().addPushMsgListener(this)
+        MainRouter.instance.addPushMsgListener(this)
     }
 
     companion object {

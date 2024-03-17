@@ -1,5 +1,7 @@
 package com.example.datalib.socket
 
+import com.example.domain.base.printExceptionCallStack
+import com.example.domain.base.printlnCallStack
 import com.example.domain.socket.ISocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,23 +17,33 @@ class ChatSocket : ISocket {
     private var isConnected = false
     private var reader: InputStream? = null
     private var writer: OutputStream? = null
+    private var connectListener: ISocket.ConnectListener? = null
     override fun connect(host: String, port: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            realSocket = Socket(host, port)
             try {
+                realSocket = Socket(host, port)
                 println("success connect to ${host}:${port}")
+                isConnected = true
                 reader = realSocket!!.getInputStream()
                 writer = realSocket!!.getOutputStream()
-            } catch (e: IOException) {
-                println("fail to connect to ${host}:${port},e=${e.stackTrace}")
+                connectListener?.onConnect()
+            } catch (e: Exception) {
+                printExceptionCallStack("fail to connect ", e)
             }
         }
     }
 
+
     override fun disconnect() {
         println("disconnect")
+        reader?.close()
+        writer?.close()
         realSocket?.close()
         realSocket = null
+    }
+
+    override fun setOnConnectListener(l: ISocket.ConnectListener) {
+        this.connectListener = l
     }
 
     override fun write(byteArray: ByteArray) {
@@ -39,7 +51,11 @@ class ChatSocket : ISocket {
     }
 
     override fun read(byteArray: ByteArray): Int {
-        return reader?.read(byteArray) ?: -1
+        return read(byteArray, 0, byteArray.size)
+    }
+
+    override fun read(byteArray: ByteArray, startIndex: Int, length: Int): Int {
+        return reader?.read(byteArray, startIndex, length) ?: -1
     }
 
     override fun isConnected(): Boolean {

@@ -2,12 +2,15 @@ package com.example.domain.logic.chat
 
 import com.example.domain.ApiService
 import com.example.domain.base.GsonUtil
-import com.example.domain.socket.DataOperator
+import com.example.domain.device.IToast
 import com.example.domain.socket.ILogicAction
-import com.example.domain.socket.SocketManager
+import com.example.domain.socket.OpConst
+import com.example.domain.socket.RawDataOperator
+import com.example.domain.socket.msgdealer.MainRouter
+import com.example.domain.socket.msgdealer.RawDataStruct
 
 
-class ChatRoomRepository : IChatRoomRepository{
+class ChatRoomRepository : IChatRoomRepository {
 
     override fun registerNewMsgListener(l: IChatRoomRepository.NewMsgListener) {
         RoomMsgManager.getManger().pushMsgListener = object : PushMsgListener {
@@ -27,13 +30,33 @@ class ChatRoomRepository : IChatRoomRepository{
             this.content = content
             this.sendUid = uid
         }
-        val socketManager = ApiService[ILogicAction::class.java]?:return
-        socketManager.write(
-            DataOperator.constructData(
-                DataOperator.OP_SEND_MESSAGE_ALL,
-                GsonUtil.gson.toJson(roomMsg).toByteArray()
+        val socketManager = ApiService[ILogicAction::class.java] ?: return
+        val dataOperator = ApiService[RawDataOperator::class.java] ?: return
+        if (socketManager.isConnected()) {
+            val outData = dataOperator.constructData(
+                RawDataStruct(
+                    0L, OpConst.OP_SEND_MESSAGE_ALL,
+                    GsonUtil.gson.toJson(roomMsg).toByteArray(), "message"
+                )
             )
-        )
+            socketManager.write(
+                outData.first,
+                outData.second,
+                object : ILogicAction.SeqCallback {
+
+                    override fun onSuccess() {
+                        RoomMsgManager.getManger()
+                            .onReceiveNewMsg(roomMsg)
+                    }
+
+                    override fun onFail(code: Int, msg: String) {
+                        ApiService[IToast::class.java]?.showToast(msg, 0)
+                    }
+
+                }
+            )
+        }
+
     }
 
     override fun loadOldMsg(roomId: Int): List<RoomMsg> {
