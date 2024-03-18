@@ -17,6 +17,7 @@ class SocketManager : ILogicAction {
 
     private val mainRouter by lazy { MainRouter.instance }
     private var timer: Timer? = null
+    private val dataSizeBuf = ByteArray(4)
     override fun initSetting(socket: ISocket, executor: Executor) {
         this.socket = socket
         this.executor = executor
@@ -65,40 +66,20 @@ class SocketManager : ILogicAction {
 
     override fun startReadAlways() {
         executor?.runInChild {
-            while (true) {
-                if (socket?.isConnected() == true) {
-                    val bufSize = 512
-                    val buf = ByteArray(bufSize)
-                    val buf2 = ByteArray(4)
-                    val sc = socket ?: return@runInChild
-                    try {
-                        //先读后续数据的长度
-                        sc.read(buf2)
-                        val target = ByteBuffer.wrap(buf2).order(ByteOrder.LITTLE_ENDIAN).getInt()
-                        var curRead = 0
-                        val byteBuffer = ByteBuffer.allocate(target).order(ByteOrder.LITTLE_ENDIAN)
-                        while (curRead < target) {
-                            val curPendingReadSize = if ((target - curRead) < buf.size) {
-                                target - curRead
-                            } else {
-                                buf.size
-                            }
-                            curRead += sc.read(buf, 0, curPendingReadSize)
-                            if (curRead < buf.size) {
-                                for (i in 0 until curRead) {
-                                    byteBuffer.put(buf[i])
-                                }
-                            } else {
-                                byteBuffer.put(buf)
-                            }
-                        }
-                        parseServeMsg(byteBuffer.array())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
+            while (socket?.isConnected() == true) {
+                val sc = socket ?: return@runInChild
+                try {
+                    //先读后续数据的长度
+                    sc.read(dataSizeBuf)
+                    val target =
+                        ByteBuffer.wrap(dataSizeBuf).order(ByteOrder.LITTLE_ENDIAN).getInt()
+                    val dataBuf = ByteArray(target)
+                    sc.read(dataBuf)
+                    val byteBuffer = ByteBuffer.wrap(dataBuf).order(ByteOrder.LITTLE_ENDIAN)
+                    parseServeMsg(byteBuffer.array())
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-
-
             }
         }
     }

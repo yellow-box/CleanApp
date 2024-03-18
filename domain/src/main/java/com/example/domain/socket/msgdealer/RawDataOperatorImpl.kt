@@ -17,14 +17,14 @@ class RawDataOperatorImpl : RawDataOperator {
 
     private val curSeq: AtomicLong = AtomicLong(1)
     override fun parseRawData(byteArray: ByteArray): RawDataStruct {
-        val byteBuffer = ByteBuffer.wrap(byteArray).order(ByteOrder.LITTLE_ENDIAN)
-
-        val seq = byteBuffer.getLong()
-        val opType = byteBuffer.getInt()
         val headLen = SEQ_LEN + OP_LEN
         if (byteArray.size < headLen) {
             throw Exception("raw array len must larger than $headLen")
         }
+        val byteBuffer = ByteBuffer.wrap(byteArray).order(ByteOrder.LITTLE_ENDIAN)
+
+        val seq = byteBuffer.getLong()
+        val opType = byteBuffer.getInt()
         val contentByteArray = ByteArray(byteArray.size - headLen)
         byteArray.copyInto(contentByteArray, startIndex = headLen)
         return RawDataStruct(seq, opType, contentByteArray, "")

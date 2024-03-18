@@ -27,7 +27,12 @@ class ChatViewModel(private val chatRoomRepository: IChatRoomRepository) : ViewM
         chatRoomRepository.registerNewMsgListener(object : IChatRoomRepository.NewMsgListener {
             override fun onReceiveNewMsg(roomMsg: RoomMsg) {
                 viewModelScope.launch {
-                    _chatStateFlow.emit(ChatState.RecNewMsg(roomId, ChatModelMapping.toViewModel(roomMsg)))
+                    _chatStateFlow.emit(
+                        ChatState.RecNewMsg(
+                            roomId,
+                            ChatModelMapping.toViewModel(roomMsg)
+                        )
+                    )
                 }
             }
         })
@@ -35,7 +40,12 @@ class ChatViewModel(private val chatRoomRepository: IChatRoomRepository) : ViewM
 
     fun initChatRoom(roomId: Int) {
         viewModelScope.launch {
-            _chatStateFlow.emit(ChatState.InitChatRoomSuccess(roomId, listOf()))
+            _chatStateFlow.emit(
+                ChatState.InitChatRoomSuccess(
+                    roomId,
+                    ChatModelMapping.toViewModels(chatRoomRepository.loadOldMsg(roomId))
+                )
+            )
         }
     }
 

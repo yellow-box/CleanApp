@@ -59,6 +59,7 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
                 }
             }
         }
+        chatViewModel.initChatRoom(roomId)
     }
 
     override fun showHistory(msgS: List<VRoomMsg>) {
