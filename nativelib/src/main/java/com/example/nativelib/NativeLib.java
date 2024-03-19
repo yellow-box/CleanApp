@@ -13,8 +13,5 @@ public class NativeLib {
      */
     public native String stringFromJNI();
 
-    public void printVersion() {
-
-    }
 
 }

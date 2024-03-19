@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <string>
 #include "android/log.h"
+extern "C"
 #include "lib_interface.h"
 #define LOGD(tag, content)  __android_log_print(ANDROID_LOG_DEBUG,tag,content)
 #define LOGE(tag, content)  __android_log_print(ANDROID_LOG_ERROR,tag,content)
@@ -31,39 +32,39 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_nativelib_NativeSocket_connect(JNIEnv *env, jobject thiz, jstring host,
                                                 jint port) {
-    // TODO: implement connect()
+
 }
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_nativelib_NativeSocket_disconnect(JNIEnv *env, jobject thiz) {
-    // TODO: implement disconnect()
+
 }
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_nativelib_NativeSocket_setOnConnectListener(JNIEnv *env, jobject thiz, jobject l) {
-    // TODO: implement setOnConnectListener()
+
 }
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_nativelib_NativeSocket_write(JNIEnv *env, jobject thiz, jbyteArray byte_array) {
-    // TODO: implement write()
+
 }
 
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_example_nativelib_NativeSocket_isConnected(JNIEnv *env, jobject thiz) {
-    // TODO: implement isConnected()
+    return false;
 }
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_nativelib_NativeSocket_read___3B(JNIEnv *env, jobject thiz,
                                                   jbyteArray byte_array) {
-    // TODO: implement read()
+    return 0;
 }
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_nativelib_NativeSocket_read___3BII(JNIEnv *env, jobject thiz,
                                                     jbyteArray byte_array, jint start_index,
                                                     jint length) {
-    // TODO: implement read()
+    return 0;
 }

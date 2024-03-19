@@ -1,9 +1,7 @@
-import org.jetbrains.kotlin.konan.file.File.Companion.javaHome
-
 plugins {
     id("com.android.library")
 }
-var path = ""
+
 android {
     namespace = "com.example.nativelib"
     compileSdk = 34
@@ -16,6 +14,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags("")
+                //只编译 arm64-v8架构的 abi
+                abiFilters("arm64-v8a")
             }
         }
     }
@@ -48,9 +48,9 @@ android {
 //    ))
 //}
 
-tasks.withType<JavaExec>() {
-    jvmArgs("--enable-preview", "-Djava.library.path=./lib", "--add-modules=jdk.incubator.vector")
-}
+//tasks.withType<JavaExec>() {
+//    jvmArgs("--enable-preview", "-Djava.library.path=./lib", "--add-modules=jdk.incubator.vector")
+//}
 dependencies {
     implementation(project(":domain"))
     implementation("androidx.appcompat:appcompat:1.6.1")
