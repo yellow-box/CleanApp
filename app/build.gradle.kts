@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":nativelib"))
     implementation(project(":domain"))
     implementation(project(":datalib"))
     implementation(project(":platformrelated"))

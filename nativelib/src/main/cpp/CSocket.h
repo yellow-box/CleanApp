@@ -5,10 +5,10 @@
 #ifndef CLEANAPP_CSOCKET_H
 #define CLEANAPP_CSOCKET_H
 #define bytearray(name) unsigned char type[]
-
 class CSocket {
 public:
-    void connect(char *ip, char *port);
+
+    void connect(const char *ip, const char *port);
 
     void disconnect();
 

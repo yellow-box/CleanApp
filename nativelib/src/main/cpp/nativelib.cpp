@@ -1,14 +1,31 @@
 #include <jni.h>
 #include <string>
+#include "android/log.h"
+#include "lib_interface.h"
+#define LOGD(tag, content)  __android_log_print(ANDROID_LOG_DEBUG,tag,content)
+#define LOGE(tag, content)  __android_log_print(ANDROID_LOG_ERROR,tag,content)
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_nativelib_NativeLib_stringFromJNI(
-        JNIEnv* env,
+        JNIEnv *env,
         jobject /* this */) {
     std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
+//    LOGD("tag",  "f");
+    const char* v =get_lib_version();
+    return env->NewStringUTF(v);
 }
-
+//jint JNI_OnLoad(JavaVM* vm, void* reserved) {
+//
+//    JNIEnv* env = NULL;
+//
+//    jint result = -1;
+//
+//    if (vm->GetEnv((void**) &env, JNI_VERSION_1_4) != JNI_OK) {
+//
+//
+//        goto bail;
+//
+//    }
 
 extern "C"
 JNIEXPORT void JNICALL

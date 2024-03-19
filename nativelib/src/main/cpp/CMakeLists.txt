@@ -26,13 +26,16 @@ project("nativelib")
 # used in the AndroidManifest.xml file.
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        nativelib.cpp)
-#add_library("rust_security" SHARED IMPORTED)
-#set_target_properties("rust_security" PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/libs/librust_security.so)
+        nativelib.cpp
+        lib_interface.h)
+add_library("rust_security" SHARED IMPORTED)
+set_target_properties("rust_security" PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/libs/librust_security.so)
+#message("my path" ${CMAKE_SOURCE_DIR}/libs/librust_security.so)
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.
 target_link_libraries(${CMAKE_PROJECT_NAME}
         # List libraries link to the target library
         android
-        log)
+        log
+        rust_security)

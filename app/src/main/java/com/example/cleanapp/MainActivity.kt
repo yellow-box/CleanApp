@@ -9,6 +9,7 @@ import com.example.cleanapp.databinding.ActivityMainBinding
 import com.example.domain.ApiService
 import com.example.domain.logic.SocketInfo
 import com.example.domain.socket.ILogicAction
+import com.example.nativelib.NativeLib
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -28,5 +29,6 @@ class MainActivity : AppCompatActivity() {
         binding.disconnBtn.setOnClickListener {
             ApiService[ILogicAction::class.java]?.disconnect()
         }
+        println(NativeLib().stringFromJNI())
     }
 }

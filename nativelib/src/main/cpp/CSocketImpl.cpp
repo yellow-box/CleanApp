@@ -4,10 +4,6 @@
 #include "CSocket.h"
 
 
-void CSocket::connect(char *ip, char *port) {
-
-}
-
 void CSocket::disconnect() {
 
 }
@@ -25,5 +21,9 @@ void CSocket::write(bytearray(buf)) {
 }
 
 bool CSocket::isConnected() {
+
+}
+
+void CSocket::connect(const char *ip, const char *port) {
 
 }

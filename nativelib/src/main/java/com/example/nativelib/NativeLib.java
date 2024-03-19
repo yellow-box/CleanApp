@@ -4,7 +4,7 @@ public class NativeLib {
 
     // Used to load the 'nativelib' library on application startup.
     static {
-        System.loadLibrary("rust_security");
+        System.loadLibrary("nativelib");
     }
 
     /**
@@ -14,10 +14,7 @@ public class NativeLib {
     public native String stringFromJNI();
 
     public void printVersion() {
-//        Linker linker = Linker.nativeLinker();
-//        SymbolLookup loaderLookup = SymbolLookup.loaderLookup();
-//
-//        MemorySegment getCLangVersion = loaderLookup.find("GetCLangVersion").get()
+
     }
 
 }
