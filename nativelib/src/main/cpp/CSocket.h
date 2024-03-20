@@ -4,15 +4,13 @@
 
 #ifndef CLEANAPP_CSOCKET_H
 #define CLEANAPP_CSOCKET_H
-#define bytearray(name) unsigned char type[]
+#define bytearray(name) unsigned char name[]
 class CSocket {
 public:
-
-    void connect(const char *ip, const char *port);
+    int  clientSocketFd;
+    void connect(const char *ip, int port);
 
     void disconnect();
-
-    int read(bytearray(buf));
 
     int read(bytearray(buf), int startIndex, int length);
 
