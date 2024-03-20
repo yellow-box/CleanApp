@@ -1,6 +1,9 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    //子模块好像不能直接使用下面的方式依赖
+//    alias(libs.plugins.android.gradle.library)
+//    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -34,15 +37,13 @@ android {
 
 dependencies {
     implementation(project(":domain"))
-    val retrofitVersion = "2.6.2"
-    val dataStoreVersion = "1.0.0"
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.datastore:datastore-preferences:${dataStoreVersion}") // 使用类似 SharedPreferences APi
-    implementation("com.squareup.retrofit2:retrofit:${retrofitVersion}")
-    implementation("com.squareup.retrofit2:converter-gson:${retrofitVersion}")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.datastore.preferences)// 使用类似 SharedPreferences APi
+    implementation(libs.retrofit2.retrofit)
+    implementation(libs.retrofit2.converter.gson)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.junit.androidx)
+    androidTestImplementation(libs.espresso.core)
 }
