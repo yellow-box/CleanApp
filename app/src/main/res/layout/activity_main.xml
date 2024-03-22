@@ -15,36 +15,43 @@
 
         <TextView
             android:id="@+id/jump_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="jump to Chat room"
-            android:textColor="@color/black"
-            android:textSize="30sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            style="@style/norm_text_style"
+            android:text="jump to Chat room" />
 
         <TextView
             android:id="@+id/conn_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="conn"
-            android:textColor="@color/black"
-            android:textSize="30sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            style="@style/norm_text_style"
+            android:text="conn" />
 
         <TextView
             android:id="@+id/disconn_btn"
+            style="@style/norm_text_style"
+            android:text="disconn" />
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="disconn"
-            android:textColor="@color/black"
-            android:textSize="30sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/user_id_tv"
+                style="@style/norm_text_style"
+                android:text="UserId:" />
+
+            <EditText
+                android:id="@+id/user_id_et"
+                style="@style/norm_text_style"
+                android:layout_width="50dp"
+                android:layout_marginStart="10dp"
+                android:inputType="number"
+                android:text="" />
+
+            <TextView
+                android:id="@+id/user_id_check_btn"
+                style="@style/norm_text_style"
+                android:layout_marginStart="20dp"
+                android:text="Check in" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

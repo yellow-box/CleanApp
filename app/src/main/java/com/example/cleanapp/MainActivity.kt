@@ -7,9 +7,9 @@ import com.example.cleanapp.chat.ChatRoomActivity
 import com.example.cleanapp.chat.ChatViewModel
 import com.example.cleanapp.databinding.ActivityMainBinding
 import com.example.domain.ApiService
+import com.example.domain.device.ILoginUser
 import com.example.domain.logic.SocketInfo
 import com.example.domain.socket.ILogicAction
-import com.example.nativelib.NativeLib
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -17,6 +17,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        initView()
+        initEvent()
+    }
+
+    private fun initView() {
+        binding.userIdEt.setText("${(ApiService[ILoginUser::class.java]?.getUid() ?: -1)}")
+    }
+
+    private fun initEvent() {
         binding.jumpBtn.setOnClickListener {
             with(Intent(this, ChatRoomActivity::class.java)) {
                 putExtra(ChatViewModel.PARAM_ROOM_ID, 1)
@@ -29,6 +38,9 @@ class MainActivity : AppCompatActivity() {
         binding.disconnBtn.setOnClickListener {
             ApiService[ILogicAction::class.java]?.disconnect()
         }
-        println("rust enc version:${NativeLib().stringFromJNI()}")
+        binding.userIdCheckBtn.setOnClickListener {
+            ApiService[ILoginUser::class.java]?.saveUid((binding.userIdEt.text).toString().toInt())
+            binding.userIdEt.setText("${(ApiService[ILoginUser::class.java]?.getUid() ?: -1)}")
+        }
     }
 }

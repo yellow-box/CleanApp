@@ -4,7 +4,6 @@
 
 #ifndef CLEANAPP_CSOCKET_H
 #define CLEANAPP_CSOCKET_H
-#define bytearray(name) unsigned char name[]
 class CSocket {
 public:
     int  clientSocketFd;
@@ -12,9 +11,9 @@ public:
 
     void disconnect();
 
-    int read(bytearray(buf), int startIndex, int length);
+    int read(jbyte *buf, int startIndex, int length);
 
-    void write(bytearray(buf));
+    void write(jbyte *buf,int len);
 
     bool isConnected();
 

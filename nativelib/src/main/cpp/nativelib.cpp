@@ -14,7 +14,7 @@ extern "C"
 #include "CSocket.h"
 #define LOGD(tag, content)  __android_log_print(ANDROID_LOG_DEBUG,tag,content)
 #define LOGE(tag, content)  __android_log_print(ANDROID_LOG_ERROR,tag,content)
-
+#define tag "CSocket"
 CSocket *nativeSocket = nullptr;
 
 int littleEndianToInt(unsigned char *data, int len) {
@@ -37,27 +37,30 @@ Java_com_example_nativelib_NativeLib_stringFromJNI(
 }
 
 
+//====CSocket
+
 void CSocket::disconnect() {
     ::close(clientSocketFd);
 }
 
 
-int CSocket::read(bytearray(buf), int startIndex, int length) {
-    while (isConnected()) {
-        int bytesRead = recv(clientSocketFd, buf, sizeof(&buf), 0);
-//        int peddingSize = littleEndianToInt(buffer, 4);
-        if (bytesRead > 0) {
-
-        }
-        //调用 java 回调,将数据传递出去，java层需要自己复制一份，c层释放
-//        if (readCallback != nullptr) {
-//            readCallback(dataBuf,peddingSize);
-//        }
+int CSocket::read(jbyte *buf, int startIndex, int length) {
+    if (isConnected()) {
+        int bytesRead = recv(clientSocketFd, &(buf[startIndex]), length, 0);
+        LOGD(tag, "socket read data");
+        return bytesRead;
     }
+    LOGD(tag, "socket is not connected");
+    return -2;
 }
 
-void CSocket::write(bytearray(buf)) {
-
+void CSocket::write(jbyte *buf, int len) {
+    if (isConnected()) {
+        send(clientSocketFd, buf, len, 0);
+        LOGD(tag, "socket success write");
+    }
+    LOGD(tag, "socket is not connected");
+    return;
 }
 
 bool CSocket::isConnected() {
@@ -69,11 +72,11 @@ bool CSocket::isConnected() {
 
 void CSocket::connect(const char *ip, int port) {
     clientSocketFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    LOGD(tag,"start connect!");
     if (clientSocketFd < 0) {
-        printf("Failed to create socket\n");
+        LOGD(tag,"Failed to create socket");
         return;
     }
-
     struct sockaddr_in serverAddr;
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
@@ -88,6 +91,8 @@ void CSocket::connect(const char *ip, int port) {
         printf("success to connect socket,ip:%s,port:%d\n", ip, port);
     }
 }
+//====CSocket
+
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -107,34 +112,58 @@ Java_com_example_nativelib_NativeSocket_disconnect(JNIEnv *env, jobject thiz) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_nativelib_NativeSocket_setOnConnectListener(JNIEnv *env, jobject thiz, jobject l) {
-
-}
-
-extern "C"
-JNIEXPORT void JNICALL
 Java_com_example_nativelib_NativeSocket_write(JNIEnv *env, jobject thiz, jbyteArray byte_array) {
+    if (nativeSocket != NULL && nativeSocket->isConnected()) {
+        // 获取字节数组的长度
+        jsize length = env->GetArrayLength(byte_array);
 
+        // 获取字节数组的指针
+        jbyte *jbyteP = env->GetByteArrayElements(byte_array, NULL);
+        nativeSocket->write(jbyteP, length);
+        env->ReleaseByteArrayElements(byte_array, jbyteP, JNI_FALSE);
+    } else {
+        LOGD(tag, "native socket is not connected");
+    }
 }
 
 extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_example_nativelib_NativeSocket_isConnected(JNIEnv *env, jobject thiz) {
-    if(nativeSocket == NULL){
+    if (nativeSocket == NULL) {
         return false;
     }
-    return ;
+    return nativeSocket->isConnected();
 }
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_example_nativelib_NativeSocket_read___3B(JNIEnv *env, jobject thiz,
-                                                  jbyteArray byte_array) {
-    return 0;
-}
+
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_nativelib_NativeSocket_read___3BII(JNIEnv *env, jobject thiz,
                                                     jbyteArray byte_array, jint start_index,
                                                     jint length) {
-    return 0;
+    if (nativeSocket != NULL && nativeSocket->isConnected()) {
+        // 获取字节数组的指针
+        jbyte *jbyteP = env->GetByteArrayElements(byte_array, NULL);
+        int readSize = nativeSocket->read(jbyteP, start_index, length);
+        env->ReleaseByteArrayElements(byte_array, jbyteP, JNI_FALSE);
+        return readSize;
+    } else {
+        LOGD(tag, "native socket is not connected");
+        return 0;
+    }
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_nativelib_NativeSocket_testNativeModifyByte(JNIEnv *env, jobject thiz,
+                                                             jbyteArray bytes) {
+    // 获取字节数组的长度
+    jsize length = env->GetArrayLength(bytes);
+
+    // 获取字节数组的指针
+    jbyte *jbyteP = env->GetByteArrayElements(bytes, NULL);
+    jbyteP[0] = 5;
+    jbyteP[1] = 2;
+
+
+    //这里 mode 要传递0
+    env->ReleaseByteArrayElements(bytes, jbyteP, JNI_FALSE);
 }

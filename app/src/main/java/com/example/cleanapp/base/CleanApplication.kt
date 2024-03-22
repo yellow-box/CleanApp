@@ -15,6 +15,8 @@ import com.example.domain.socket.ISocketMsgDealer
 import com.example.domain.socket.RawDataOperator
 import com.example.domain.socket.SocketManager
 import com.example.domain.socket.msgdealer.RawDataOperatorImpl
+import com.example.nativelib.NativeSocket
+import com.example.nativelib.NativeSocketProxy
 import com.example.platformrelated.base.RealExecutor
 import com.example.platformrelated.base.ToastHelper
 
@@ -34,13 +36,13 @@ class CleanApplication : Application(), IGlobalContextProvider<Context> {
         ApiService.register(IToast::class.java, ToastHelper())
         ApiService.register(ILogicAction::class.java, SocketManager())
         ApiService.register(ILoginUser::class.java, LoginUserDatasource())
-        ApiService.register(RawDataOperator::class.java,RawDataOperatorImpl())
+        ApiService.register(RawDataOperator::class.java, RawDataOperatorImpl())
         connectSocket()
     }
 
     private fun connectSocket() {
         val socketManger = ApiService[ILogicAction::class.java] ?: return
-        socketManger.initSetting(ChatSocket(), RealExecutor())
+        socketManger.initSetting(NativeSocketProxy(), RealExecutor())
         socketManger.connect(SocketInfo.ip, SocketInfo.port)
     }
 

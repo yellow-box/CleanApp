@@ -7,10 +7,12 @@ import com.example.domain.socket.ISocket;
 public class NativeSocketProxy implements ISocket {
 
     private final NativeSocket nativeSocket = new NativeSocket();
+    private ConnectListener l = null;
 
     @Override
     public void connect(@NonNull String host, int port) {
         nativeSocket.connect(host, port);
+        l.onConnect();
     }
 
     @Override
@@ -20,7 +22,7 @@ public class NativeSocketProxy implements ISocket {
 
     @Override
     public void setOnConnectListener(@NonNull ConnectListener l) {
-        nativeSocket.setOnConnectListener(l);
+        this.l = l;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class NativeSocketProxy implements ISocket {
 
     @Override
     public int read(@NonNull byte[] byteArray) {
-        return nativeSocket.read(byteArray);
+        return read(byteArray, 0, byteArray.length);
     }
 
     @Override
