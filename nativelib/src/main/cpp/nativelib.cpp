@@ -32,8 +32,8 @@ Java_com_example_nativelib_NativeLib_stringFromJNI(
         jobject /* this */) {
     std::string hello = "Hello from C++";
 //    LOGD("tag",  "f");
-    const char *v = get_lib_version();
-    return env->NewStringUTF(v);
+//    const char *v = get_lib_version();
+    return env->NewStringUTF("Hello from C++");
 }
 
 
@@ -57,6 +57,7 @@ int CSocket::read(jbyte *buf, int startIndex, int length) {
 void CSocket::write(jbyte *buf, int len) {
     if (isConnected()) {
         send(clientSocketFd, buf, len, 0);
+//        fflush((FILE *)clientSocketFd);
         LOGD(tag, "socket success write");
     }
     LOGD(tag, "socket is not connected");
@@ -103,11 +104,15 @@ Java_com_example_nativelib_NativeSocket_connect(JNIEnv *env, jobject thiz, jstri
     nativeSocket->connect(ip, (int) port);
     env->ReleaseStringUTFChars(host, ip);
 }
+
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_nativelib_NativeSocket_disconnect(JNIEnv *env, jobject thiz) {
-    nativeSocket->disconnect();
-    delete nativeSocket;
+    if(nativeSocket != NULL) {
+        nativeSocket->disconnect();
+        delete nativeSocket;
+        nativeSocket = NULL;
+    }
 }
 
 extern "C"

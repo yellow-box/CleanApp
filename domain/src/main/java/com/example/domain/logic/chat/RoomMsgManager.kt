@@ -35,6 +35,7 @@ class RoomMsgManager : IChatRoomRepository.NewMsgListener {
         val roomId = roomMsg.roomId
         if (!msgS.containsKey(roomId)) {
             msgS[roomId] = LinkedList()
+            msgS[roomId]!!.add(roomMsg)
         } else {
             msgS[roomId]?.add(roomMsg)
         }

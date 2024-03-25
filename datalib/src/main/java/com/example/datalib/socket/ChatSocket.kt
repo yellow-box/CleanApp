@@ -18,19 +18,14 @@ class ChatSocket : ISocket {
     private var reader: InputStream? = null
     private var writer: OutputStream? = null
     private var connectListener: ISocket.ConnectListener? = null
+
     override fun connect(host: String, port: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                realSocket = Socket(host, port)
-                println("success connect to ${host}:${port}")
-                isConnected = true
-                reader = realSocket!!.getInputStream()
-                writer = realSocket!!.getOutputStream()
-                connectListener?.onConnect()
-            } catch (e: Exception) {
-                printExceptionCallStack("fail to connect ", e)
-            }
-        }
+        realSocket = Socket(host, port)
+        println("success connect to ${host}:${port}")
+        isConnected = true
+        reader = realSocket!!.getInputStream()
+        writer = realSocket!!.getOutputStream()
+        connectListener?.onConnect()
     }
 
 
@@ -48,6 +43,7 @@ class ChatSocket : ISocket {
 
     override fun write(byteArray: ByteArray) {
         writer?.write(byteArray)
+        writer?.flush()
     }
 
     override fun read(byteArray: ByteArray): Int {

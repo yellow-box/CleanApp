@@ -2,28 +2,32 @@ package com.example.domain.socket
 
 
 import com.example.domain.ApiService
+import com.example.domain.base.GsonUtil
+import com.example.domain.base.printExceptionCallStack
 import com.example.domain.device.ILoginUser
+import com.example.domain.socket.msgdealer.BindUserData
 import com.example.domain.socket.msgdealer.MainRouter
 import com.example.domain.socket.msgdealer.RawDataStruct
 import java.net.SocketException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.Timer
-import java.util.TimerTask
 
 class SocketManager : ILogicAction {
+    companion object {
+        val HEART_BEAT_INTERNAL = 1000L
+    }
+
     private var socket: ISocket? = null
     private var executor: Executor? = null
-
     private val mainRouter by lazy { MainRouter.instance }
-    private var timer: Timer? = null
     private val dataSizeBuf = ByteArray(4)
+
     override fun initSetting(socket: ISocket, executor: Executor) {
         this.socket = socket
         this.executor = executor
         socket.setOnConnectListener(object : ISocket.ConnectListener {
             override fun onConnect() {
-//                sendHeartBeat()
+                sendHeartBeat()
                 startReadAlways()
                 bindUser(ApiService[ILoginUser::class.java]?.getUid() ?: 0)
             }
@@ -34,22 +38,36 @@ class SocketManager : ILogicAction {
         if (isConnected()) {
             return
         }
-        socket?.connect(host, port)
+        executor?.runInChild {
+            try {
+                socket?.connect(host, port)
+            } catch (e: Exception) {
+                printExceptionCallStack("fail to connect ", e)
+            }
+        }
     }
 
     fun bindUser(uid: Int) {
-        write(uid.toByteArray(), -1)
+        val dataOperator = ApiService[RawDataOperator::class.java] ?: return
+       val  outData = dataOperator.constructData(
+            RawDataStruct(
+                0L, OpConst.OP_BIND_USER,
+                GsonUtil.gson.toJson(BindUserData(uid)).toByteArray(), "bindUser"
+            )
+        )
+        write(outData.first, outData.second, null)
     }
 
     override fun disconnect() {
         socket?.disconnect()
-        timer?.cancel()
+        HeatBeatManager.instance.cancelTimer()
     }
 
-    override fun write(byteArray: ByteArray, seq: Long, callback: ILogicAction.SeqCallback?) {
-        executor?.runInChild {
+    // 其他的write和 heatBeat 的 write 会导致 先写数据长度，后写数据内容的 写入顺序被破坏。
+    override fun write(byteArray: ByteArray, seq: Long, seqCallback: ILogicAction.SeqCallback?) {
+        executor?.runInChildWithMutex {
             try {
-                callback?.apply {
+                seqCallback?.apply {
                     if (seq >= 0) {
                         MainRouter.instance.putCallback(seq, this)
                     }
@@ -93,27 +111,7 @@ class SocketManager : ILogicAction {
     }
 
     override fun sendHeartBeat() {
-        timer = Timer()
-        timer?.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                if (!isConnected()) {
-                    println("heartbeat not connected")
-                    return
-                }
-                val dataOperator = ApiService[RawDataOperator::class.java] ?: return
-                val rawData = RawDataStruct(
-                    0L,
-                    OpConst.OP_HEART_BEAT,
-                    ByteArray(0),
-                    "heartBeat"
-                )
-                val data =
-                    dataOperator.constructData(
-                        rawData
-                    )
-                write(data.first, data.second)
-            }
-        }, 0L, 2000L)
+        HeatBeatManager.instance.start()
     }
 
     fun Int.toByteArray(): ByteArray {

@@ -55,8 +55,9 @@ class ChatRoomRepository : IChatRoomRepository {
 
                 }
             )
+        } else {
+            println("write data but SocketManager is not Connected")
         }
-
     }
 
     override fun loadOldMsg(roomId: Int): List<RoomMsg> {

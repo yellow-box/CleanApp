@@ -18,6 +18,11 @@
             style="@style/norm_text_style"
             android:text="jump to Chat room" />
 
+        <Spinner
+            android:id="@+id/socket_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
         <TextView
             android:id="@+id/conn_btn"
             style="@style/norm_text_style"
