@@ -51,8 +51,8 @@ dependencies {
     testImplementation(libs.mockito.inline)
     androidTestImplementation(libs.junit.androidx)
     androidTestImplementation(libs.espresso.core)
+    implementation(project(":datalib"))
 
-    implementation(project(":nativelib"))
     implementation(project(":domain"))
     implementation(project(":datalib"))
     implementation(project(":platformrelated"))
