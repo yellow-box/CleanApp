@@ -6,6 +6,7 @@ object ChatModelMapping {
             roomId = roomMsg.roomId
             sender = roomMsg.sendUid
             content = roomMsg.content
+            msgId = roomMsg.msgId
         }
     }
 

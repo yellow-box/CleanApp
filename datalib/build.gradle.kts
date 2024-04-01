@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp") version "1.9.20-1.0.13"//引入ksp插件
 //    alias(libs.plugins.android.gradle.library)
 }
 
@@ -62,10 +63,11 @@ dependencies {
     implementation(libs.datastore.preferences)// 使用类似 SharedPreferences APi
     implementation(libs.retrofit2.retrofit)
     implementation(libs.retrofit2.converter.gson)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.junit.androidx)
-    androidTestImplementation(libs.espresso.core)
     implementation(libs.material)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+//    implementation("com.google.devtools.ksp:symbol-processing-api:1.7.10-1.0.6")//引入ksp api
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit.androidx)
     androidTestImplementation(libs.espresso.core)

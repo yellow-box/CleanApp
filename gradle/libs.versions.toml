@@ -1,6 +1,6 @@
 [versions]
 androidGradlePluginVer = "8.1.3"
-kotlin-androidPluginVer = "1.9.0"
+kotlin-androidPluginVer = "1.9.20"
 
 androidx-coreVer = "1.9.0"
 androidx-appcompatVer = "1.6.1"
@@ -8,9 +8,13 @@ materialVer = "1.11.0"
 
 constraintlayoutVer = "2.1.4"
 navigationVer = "2.7.7"
+
+
+## 基础组件
 gsonVer = "2.10.1"
 retrofit2Ver = "2.6.2"
 datastoreVer = "1.0.0"
+roomVer = "2.6.0"
 
 junitVer = "4.13.2"
 mockito-coreVer = "5.10.0"
@@ -26,10 +30,15 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVer" }
 navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationVer" }
 navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationVer" }
+
+## 基础组件
 gson = {module = "com.google.code.gson:gson", version.ref="gsonVer"}
 datastore-preferences = {module = "androidx.datastore:datastore-preferences",version.ref="datastoreVer"}
 retrofit2-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit2Ver" }
 retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit2Ver" }
+room-runtime = {module ="androidx.room:room-runtime", version.ref="roomVer"}
+room-ktx = {module ="androidx.room:room-ktx", version.ref="roomVer"}
+room-compiler = {module = "androidx.room:room-compiler",version.ref="roomVer"}
 
 junit = { module = "junit:junit", version.ref = "junitVer" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito-coreVer" }
@@ -45,7 +54,6 @@ android-gradle-application = { id = "com.android.application", version.ref = "an
 kotlin-android-plugin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-androidPluginVer" }
 kotlin-jvm-plugin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-androidPluginVer" }
 android-gradle-library = { id = "com.android.library", version.ref = "androidGradlePluginVer" }
-
 [bundles]
 # 定义一组依赖
 retrofit2 =["retrofit2-retrofit","retrofit2-converter-gson"]

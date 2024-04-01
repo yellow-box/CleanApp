@@ -10,12 +10,9 @@ import com.example.domain.device.ILoginUser
 import com.example.domain.device.IToast
 import com.example.domain.logic.SocketInfo
 import com.example.domain.socket.ILogicAction
-import com.example.domain.socket.ISocket
-import com.example.domain.socket.ISocketMsgDealer
 import com.example.domain.socket.RawDataOperator
 import com.example.domain.socket.SocketManager
 import com.example.domain.socket.msgdealer.RawDataOperatorImpl
-import com.example.nativelib.NativeSocket
 import com.example.nativelib.NativeSocketProxy
 import com.example.platformrelated.base.RealExecutor
 import com.example.platformrelated.base.ToastHelper

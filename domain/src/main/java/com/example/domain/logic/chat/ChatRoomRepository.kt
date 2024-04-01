@@ -29,6 +29,7 @@ class ChatRoomRepository : IChatRoomRepository {
             this.roomId = roomId
             this.content = content
             this.sendUid = uid
+            this.msgId = "${uid}_${System.currentTimeMillis()}"
         }
         val socketManager = ApiService[ILogicAction::class.java] ?: return
         val dataOperator = ApiService[RawDataOperator::class.java] ?: return
