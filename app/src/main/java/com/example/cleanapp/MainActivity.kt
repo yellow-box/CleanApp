@@ -3,6 +3,7 @@ package com.example.cleanapp
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
@@ -15,6 +16,10 @@ import com.example.domain.ApiService
 import com.example.domain.device.ILoginUser
 import com.example.domain.device.IToast
 import com.example.domain.logic.SocketInfo
+import com.example.domain.memostore.INVALID_UID
+import com.example.domain.memostore.InMemoDataCallback
+import com.example.domain.memostore.InMemoStore
+import com.example.domain.memostore.KEY_LOGIN_USER_ID
 import com.example.domain.socket.ILogicAction
 import com.example.nativelib.NativeSocketProxy
 import com.example.platformrelated.base.RealExecutor
@@ -23,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val JAVA_SOCKET = "java_socket"
     private val C_SOCKET = "c_socket"
-    private val socketItems = arrayListOf(JAVA_SOCKET,C_SOCKET,"none")
+    private val socketItems = arrayListOf(JAVA_SOCKET, C_SOCKET, "none")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -33,8 +38,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        binding.userIdEt.setText("${(ApiService[ILoginUser::class.java]?.getUid() ?: -1)}")
-        val  spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item,socketItems)
+        showCurUid()
+        val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, socketItems)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.socketSpinner.adapter = spinnerAdapter;
     }
@@ -47,36 +52,40 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.connBtn.setOnClickListener {
-            ApiService[ILogicAction::class.java]?.connect(SocketInfo.ip, SocketInfo.port)
+            ApiService[ILogicAction::class.java].connect(SocketInfo.ip, SocketInfo.port)
         }
         binding.disconnBtn.setOnClickListener {
-            ApiService[ILogicAction::class.java]?.disconnect()
+            ApiService[ILogicAction::class.java].disconnect()
         }
         binding.userIdCheckBtn.setOnClickListener {
-            ApiService[ILoginUser::class.java]?.saveUid((binding.userIdEt.text).toString().toInt())
-            binding.userIdEt.setText("${(ApiService[ILoginUser::class.java]?.getUid() ?: -1)}")
+            ApiService[ILoginUser::class.java].login((binding.userIdEt.text).toString().toInt())
+            ApiService[InMemoStore::class.java].save(
+                KEY_LOGIN_USER_ID,
+                (binding.userIdEt.text).toString().toInt()
+            )
+            showCurUid()
         }
-        binding.socketSpinner.onItemSelectedListener = object:OnItemSelectedListener{
+        binding.socketSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>, p1: View?, p2: Int, p3: Long) {
-               when(p0.getItemAtPosition(p2)){
-                   JAVA_SOCKET->{
-                       ApiService[ILogicAction::class.java]?.apply {
-                           disconnect()
-                           initSetting(ChatSocket(),RealExecutor())
-                       }
-                   }
+                when (p0.getItemAtPosition(p2)) {
+                    JAVA_SOCKET -> {
+                        ApiService[ILogicAction::class.java].apply {
+                            disconnect()
+                            initSetting(ChatSocket(), RealExecutor())
+                        }
+                    }
 
-                   C_SOCKET-> {
-                       ApiService[ILogicAction::class.java]?.apply {
-                           disconnect()
-                           initSetting(NativeSocketProxy() ,RealExecutor())
-                       }
-                   }
+                    C_SOCKET -> {
+                        ApiService[ILogicAction::class.java].apply {
+                            disconnect()
+                            initSetting(NativeSocketProxy(), RealExecutor())
+                        }
+                    }
 
-                   else->{
-                       ApiService[IToast::class.java]?.showToast("do nothing",0)
-                   }
-               }
+                    else -> {
+                        ApiService[IToast::class.java].showToast("do nothing", 0)
+                    }
+                }
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -85,5 +94,17 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    private fun showCurUid() {
+        ApiService[ILoginUser::class.java].getUid(object : InMemoDataCallback<Int> {
+            override fun onLoadSuccess(data: Int) {
+                binding.userIdEt.setText("$data")
+            }
+
+            override fun onLoadFailed(msg: String) {
+                Log.d("MainActivity", "loadFailed")
+            }
+        })
     }
 }

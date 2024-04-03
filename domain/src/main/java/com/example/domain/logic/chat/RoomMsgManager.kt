@@ -1,15 +1,35 @@
 package com.example.domain.logic.chat
 
+import com.example.domain.ApiService
+import com.example.domain.common.Callback
+import com.example.domain.db.DbCallback
+import com.example.domain.db.IChatMsgFetcher
 import com.example.domain.socket.msgdealer.MainRouter
-import com.example.domain.socket.msgdealer.PushMsgDealer
 import java.util.LinkedList
+import java.util.concurrent.atomic.AtomicBoolean
 
 class RoomMsgManager : IChatRoomRepository.NewMsgListener {
     private val msgS: MutableMap<Int, MutableList<RoomMsg>> = HashMap()
     var pushMsgListener: PushMsgListener? = null
+    private var hasInit = AtomicBoolean(false)
+    private var loadCallbacks: MutableMap<Int, Callback<List<RoomMsg>>> = HashMap()
 
     init {
         MainRouter.instance.addPushMsgListener(this)
+        ApiService[IChatMsgFetcher::class.java].loadAllRoomMsg(object : DbCallback<List<RoomMsg>> {
+            override fun onSuccess(data: List<RoomMsg>) {
+                loadAllRoomMsgFromDb(data)
+                invokeLoadCallbacks()
+                hasInit.set(true)
+            }
+
+            override fun onFail(nsg: String) {
+                invokeLoadCallbacks()
+                println("RoomMsgManager load dbMsgS failed! ${nsg}")
+                hasInit.set(true)
+            }
+
+        })
     }
 
     companion object {
@@ -19,15 +39,11 @@ class RoomMsgManager : IChatRoomRepository.NewMsgListener {
         }
     }
 
-    fun onRecRoomMsg(roomId: Int, content: String, fromUid: Int) {
-        if (!msgS.containsKey(roomId)) {
-            msgS[roomId] = LinkedList()
-        } else {
-            msgS[roomId]?.add(RoomMsg().apply {
-                this.roomId = roomId
-                this.content = content
-                this.sendUid = fromUid
-            })
+    private fun invokeLoadCallbacks() {
+        val iterator = loadCallbacks.iterator()
+        iterator.forEach {
+            it.value.call(msgS[it.key] ?: emptyList())
+            iterator.remove()
         }
     }
 
@@ -41,12 +57,23 @@ class RoomMsgManager : IChatRoomRepository.NewMsgListener {
         }
     }
 
-    fun getMsgSByRoomId(roomId: Int): List<RoomMsg>? {
-        return msgS[roomId]
+    private fun loadAllRoomMsgFromDb(msgS: List<RoomMsg>) {
+        msgS.forEach {
+            addRoomMsg(it)
+        }
+    }
+
+    fun getMsgSByRoomId(roomId: Int, onCallback: Callback<List<RoomMsg>>) {
+        if (hasInit.get()) {
+            onCallback.call(msgS[roomId] ?: emptyList())
+        } else {
+            loadCallbacks[roomId] = onCallback
+        }
     }
 
     override fun onReceiveNewMsg(roomMsg: RoomMsg) {
         addRoomMsg(roomMsg)
+        ApiService[IChatMsgFetcher::class.java].saveMsg(roomMsg, null)
         pushMsgListener?.onPushMsg(roomMsg)
     }
 }

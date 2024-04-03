@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Update
 import com.example.nativelib.database.entity.DbUser
 
@@ -16,9 +17,12 @@ interface UserDao {
     @Update
     fun updateUser(u: DbUser)
 
-    @Query("select * from User where :uid = id")
+    @Query("select * from DbUser where :uid = id")
     fun queryUser(uid: Int): DbUser
 
-    @Delete
+    @Query("select * from DbUser")
+    fun queryAllUser(): List<DbUser>
+
+    @Query("delete from DbUser where :uid == id ")
     fun remove(uid: Int)
 }

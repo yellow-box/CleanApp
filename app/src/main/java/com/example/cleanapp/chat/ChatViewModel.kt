@@ -2,6 +2,7 @@ package com.example.cleanapp.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.domain.common.Callback
 import com.example.domain.logic.chat.ChatModelMapping
 import com.example.domain.logic.chat.IChatRoomRepository
 import com.example.domain.logic.chat.RoomMsg
@@ -39,14 +40,18 @@ class ChatViewModel(private val chatRoomRepository: IChatRoomRepository) : ViewM
     }
 
     fun initChatRoom(roomId: Int) {
-        viewModelScope.launch {
-            _chatStateFlow.emit(
-                ChatState.InitChatRoomSuccess(
-                    roomId,
-                    ChatModelMapping.toViewModels(chatRoomRepository.loadOldMsg(roomId))
-                )
-            )
-        }
+        chatRoomRepository.loadOldMsg(roomId, object : Callback<List<RoomMsg>> {
+            override fun call(data: List<RoomMsg>) {
+                viewModelScope.launch {
+                    _chatStateFlow.emit(
+                        ChatState.InitChatRoomSuccess(
+                            roomId,
+                            ChatModelMapping.toViewModels(data)
+                        )
+                    )
+                }
+            }
+        })
     }
 
     fun sendMsg(msg: VRoomMsg) {

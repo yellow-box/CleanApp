@@ -5,6 +5,7 @@ import com.example.domain.ApiService
 import com.example.domain.base.GsonUtil
 import com.example.domain.base.printExceptionCallStack
 import com.example.domain.device.ILoginUser
+import com.example.domain.memostore.InMemoDataCallback
 import com.example.domain.socket.msgdealer.BindUserData
 import com.example.domain.socket.msgdealer.MainRouter
 import com.example.domain.socket.msgdealer.RawDataStruct
@@ -29,7 +30,16 @@ class SocketManager : ILogicAction {
             override fun onConnect() {
                 sendHeartBeat()
                 startReadAlways()
-                bindUser(ApiService[ILoginUser::class.java]?.getUid() ?: 0)
+                ApiService[ILoginUser::class.java].getUid(object :InMemoDataCallback<Int>{
+                    override fun onLoadSuccess(data: Int) {
+                        bindUser(data)
+                    }
+
+                    override fun onLoadFailed(msg: String) {
+
+                    }
+
+                })
             }
         })
     }
@@ -103,6 +113,7 @@ class SocketManager : ILogicAction {
     }
 
     override fun isConnected(): Boolean {
+//        println("soekt==null =${socket==null},socket.IsConected=${socket?.isConnected()}")
         return socket != null && socket!!.isConnected()
     }
 

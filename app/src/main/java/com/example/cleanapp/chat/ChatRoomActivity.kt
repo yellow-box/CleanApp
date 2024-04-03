@@ -10,6 +10,8 @@ import com.example.domain.ApiService
 import com.example.domain.device.ILoginUser
 import com.example.domain.device.IToast
 import com.example.domain.logic.chat.VRoomMsg
+import com.example.domain.memostore.INVALID_UID
+import com.example.domain.memostore.InMemoDataCallback
 import kotlinx.coroutines.launch
 
 class ChatRoomActivity : AppCompatActivity(), IChatAction {
@@ -17,6 +19,7 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
     private lateinit var chatViewModel: ChatViewModel
     private val adapter: ChatAdapter = ChatAdapter()
     var roomId = 1
+    var loginUid = INVALID_UID
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatRoomBinding.inflate(layoutInflater)
@@ -27,6 +30,11 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
     }
 
     private fun initEvent() {
+        ApiService[ILoginUser::class.java].getUid(object : InMemoDataCallback<Int> {
+            override fun onLoadSuccess(data: Int) {
+                loginUid = data
+            }
+        })
         binding.chatContentRv.let {
             it.layoutManager = LinearLayoutManager(this)
             it.adapter = adapter
@@ -34,16 +42,17 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
         binding.sendBtn.setOnClickListener {
             val msg = VRoomMsg()
             msg.roomId = roomId
-            msg.sender = ApiService[ILoginUser::class.java]?.getUid()?:0
+            msg.sender = loginUid
             msg.content = binding.sendEt.text.toString()
             binding.sendEt.setText("")
             chatViewModel.sendMsg(msg)
         }
+
         lifecycleScope.launch {
             chatViewModel.chatStateFlow.collect {
                 when (it) {
                     is ChatState.RecNewMsg -> {
-                        if (it.msg.sender == ApiService[ILoginUser::class.java]?.getUid()) {
+                        if (it.msg.sender == loginUid) {
                             showMyselfNewMsg(it.msg)
                         } else {
                             showNewOtherNewMsg(it.msg)
@@ -75,6 +84,6 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
     }
 
     override fun showErrorMsg(msg: String) {
-        ApiService[IToast::class.java]?.showToast(msg, 0)
+        ApiService[IToast::class.java].showToast(msg, 0)
     }
 }

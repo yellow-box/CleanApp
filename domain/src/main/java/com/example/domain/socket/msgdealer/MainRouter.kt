@@ -32,11 +32,10 @@ class MainRouter {
 //                seqCallbackMap.remove(seq)
 //            }
 //        }, 2000L)
-        var a = 1
     }
 
     fun dealData(byteArray: ByteArray) {
-        val rawDataOperator = ApiService[RawDataOperator::class.java] ?: return
+        val rawDataOperator = ApiService[RawDataOperator::class.java]
         val parseResult = rawDataOperator.parseRawData(byteArray)
         println(
             "client receive from server seq:${parseResult.seq},type:${parseResult.opType},content:${

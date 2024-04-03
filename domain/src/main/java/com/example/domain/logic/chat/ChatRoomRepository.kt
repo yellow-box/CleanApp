@@ -2,6 +2,7 @@ package com.example.domain.logic.chat
 
 import com.example.domain.ApiService
 import com.example.domain.base.GsonUtil
+import com.example.domain.common.Callback
 import com.example.domain.device.IToast
 import com.example.domain.socket.ILogicAction
 import com.example.domain.socket.OpConst
@@ -20,6 +21,14 @@ class ChatRoomRepository : IChatRoomRepository {
         }
     }
 
+    override fun loadOldMsg(roomId: Int, loadCallback: Callback<List<RoomMsg>>) {
+        RoomMsgManager.getManger().getMsgSByRoomId(roomId,object : Callback<List<RoomMsg>>{
+            override fun call(data: List<RoomMsg>) {
+                loadCallback.call(data)
+            }
+        })
+    }
+
     override fun clear() {
         RoomMsgManager.getManger().pushMsgListener = null
     }
@@ -31,9 +40,10 @@ class ChatRoomRepository : IChatRoomRepository {
             this.sendUid = uid
             this.msgId = "${uid}_${System.currentTimeMillis()}"
         }
-        val socketManager = ApiService[ILogicAction::class.java] ?: return
-        val dataOperator = ApiService[RawDataOperator::class.java] ?: return
+        val socketManager = ApiService[ILogicAction::class.java]
+        val dataOperator = ApiService[RawDataOperator::class.java]
         if (socketManager.isConnected()) {
+            println("start write data")
             val outData = dataOperator.constructData(
                 RawDataStruct(
                     0L, OpConst.OP_SEND_MESSAGE_ALL,
@@ -51,7 +61,7 @@ class ChatRoomRepository : IChatRoomRepository {
                     }
 
                     override fun onFail(code: Int, msg: String) {
-                        ApiService[IToast::class.java]?.showToast(msg, 0)
+                        ApiService[IToast::class.java].showToast(msg, 0)
                     }
 
                 }
@@ -59,10 +69,6 @@ class ChatRoomRepository : IChatRoomRepository {
         } else {
             println("write data but SocketManager is not Connected")
         }
-    }
-
-    override fun loadOldMsg(roomId: Int): List<RoomMsg> {
-        return RoomMsgManager.getManger().getMsgSByRoomId(roomId) ?: emptyList()
     }
 
 }

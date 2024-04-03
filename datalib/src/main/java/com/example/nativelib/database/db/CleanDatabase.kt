@@ -8,8 +8,9 @@ import com.example.domain.logic.user.User
 import com.example.nativelib.database.dao.ChatMsgDao
 import com.example.nativelib.database.dao.UserDao
 import com.example.nativelib.database.entity.DbChatMsg
+import com.example.nativelib.database.entity.DbUser
 
-@Database(entities = [User::class, DbChatMsg::class], version = 1)
+@Database(entities = [DbUser::class, DbChatMsg::class], version = 1)
 abstract class CleanDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun chatMsgDao(): ChatMsgDao

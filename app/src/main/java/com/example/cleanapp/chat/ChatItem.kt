@@ -15,6 +15,8 @@ import com.example.domain.ApiService
 import com.example.domain.device.ILoginUser
 import com.example.domain.logic.chat.VRoomMsg
 import com.example.domain.logic.user.UserManager
+import com.example.domain.memostore.INVALID_UID
+import com.example.domain.memostore.InMemoDataCallback
 
 class ChatAdapter : Adapter<ChatItemVh>() {
     private val ITEM_TYPE_SYS = 1
@@ -23,6 +25,15 @@ class ChatAdapter : Adapter<ChatItemVh>() {
 
 
     private val dataS = mutableListOf<VRoomMsg>()
+    private var loginUid = INVALID_UID
+
+    init {
+        ApiService[ILoginUser::class.java].getUid(object : InMemoDataCallback<Int> {
+            override fun onLoadSuccess(data: Int) {
+                loginUid = data
+            }
+        })
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateData(data: List<VRoomMsg>) {
@@ -32,6 +43,7 @@ class ChatAdapter : Adapter<ChatItemVh>() {
     }
 
     fun addData(msg: VRoomMsg) {
+        println("add msg")
         dataS.add(msg)
         notifyItemInserted(dataS.size - 1)
     }
@@ -49,7 +61,7 @@ class ChatAdapter : Adapter<ChatItemVh>() {
     override fun getItemViewType(position: Int): Int {
         val type = when (dataS[position].sender) {
             UserManager.SystemUid -> ITEM_TYPE_SYS
-            ApiService[ILoginUser::class.java]?.getUid() -> ITEM_TYPE_SELF
+            loginUid -> ITEM_TYPE_SELF
             else -> ITEM_TYPE_OTHER
         }
         return type

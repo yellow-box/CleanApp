@@ -11,9 +11,12 @@ interface ChatMsgDao {
     @Insert
     fun insertChatMsg(chatMsg: DbChatMsg)
 
-    @Query("select * from ChatMsg where :roomId==roomId")
-    fun queryMsgSByRoomId(roomId:String):List<DbChatMsg>
+    @Query("select * from DbChatMsg where :roomId==roomId")
+    fun queryMsgSByRoomId(roomId:Int):List<DbChatMsg>
 
-    @Delete
+    @Query("select * from DbChatMsg")
+    fun queryAllMsgS():List<DbChatMsg>
+
+    @Query("delete from DbChatMsg where :msgId==msgId")
     fun deleteChatMsg(msgId:String)
 }

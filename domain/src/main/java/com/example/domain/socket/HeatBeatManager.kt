@@ -35,7 +35,7 @@ class HeatBeatManager {
                         dataOperator.constructData(
                             rawData
                         )
-                    println("send heart beat seq=${data.second}")
+//                    println("send heart beat seq=${data.second}")
                     write(data.first, data.second)
                 }
             }
