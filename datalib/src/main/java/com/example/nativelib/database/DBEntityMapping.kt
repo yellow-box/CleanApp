@@ -5,6 +5,9 @@ import com.example.domain.logic.user.User
 import com.example.nativelib.database.entity.DbChatMsg
 import com.example.nativelib.database.entity.DbUser
 
+/**
+ * 负责 数据库存储的实体和 网络传输的实体 之间的映射
+ */
 object DBEntityMapping {
     fun dbMsgToMsg(dbChatMsg: DbChatMsg): RoomMsg {
         return RoomMsg().apply {

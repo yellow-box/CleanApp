@@ -5,6 +5,9 @@ import com.example.domain.socket.msgdealer.RawDataStruct
 import java.util.Timer
 import java.util.TimerTask
 
+/**
+ * 负责 发送心跳包以及是否及时接收心跳包的管理
+ */
 class HeatBeatManager {
     companion object {
         val instance by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { HeatBeatManager() }

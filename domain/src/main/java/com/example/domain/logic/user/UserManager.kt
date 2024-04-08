@@ -5,6 +5,9 @@ import com.example.domain.db.DbCallback
 import com.example.domain.db.IUserFetcher
 
 
+/**
+ * 所有的用户信息管理
+ */
 object UserManager {
     private val userS: MutableMap<Int, User> = HashMap()
     const val SystemUid = 1

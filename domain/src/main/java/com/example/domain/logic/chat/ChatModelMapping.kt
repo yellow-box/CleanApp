@@ -1,5 +1,8 @@
 package com.example.domain.logic.chat
 
+/**
+ * 负责网络中的RoomMsg 数据与 view中的VRoomMsg之间的相互映射
+ */
 object ChatModelMapping {
     fun toViewModel(roomMsg: RoomMsg): VRoomMsg {
         return VRoomMsg().apply {

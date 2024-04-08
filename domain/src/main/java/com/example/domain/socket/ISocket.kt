@@ -1,5 +1,8 @@
 package com.example.domain.socket
 
+/**
+ * 对socket的抽象
+ */
 interface ISocket {
     fun connect(host: String, port: Int)
 

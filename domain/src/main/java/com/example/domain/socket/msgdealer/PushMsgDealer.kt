@@ -6,6 +6,9 @@ import com.example.domain.logic.chat.RoomMsg
 import com.example.domain.socket.ISocketMsgDealer
 import com.example.domain.socket.OpConst
 
+/**
+ * push消息的处理
+ */
 class PushMsgDealer:ISocketMsgDealer {
     private val pushMsgListeners: MutableList<IChatRoomRepository.NewMsgListener> = mutableListOf()
     override fun matchType(msgType: Int): Boolean {

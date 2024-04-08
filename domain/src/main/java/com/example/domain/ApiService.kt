@@ -5,6 +5,9 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * 用于 依赖注入和管理
+ */
 object ApiService {
 
     private val implMap: MutableMap<Class<*>, Api> = ConcurrentHashMap()

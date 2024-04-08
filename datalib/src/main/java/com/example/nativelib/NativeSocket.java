@@ -1,6 +1,9 @@
 package com.example.nativelib;
 
 
+/**
+ * c socket
+ */
 public class NativeSocket {
 
     static {

@@ -8,6 +8,10 @@ import com.example.domain.socket.msgdealer.MainRouter
 import java.util.LinkedList
 import java.util.concurrent.atomic.AtomicBoolean
 
+
+/**
+ * 房间消息管理
+ */
 class RoomMsgManager : IChatRoomRepository.NewMsgListener {
     private val msgS: MutableMap<Int, MutableList<RoomMsg>> = HashMap()
     var pushMsgListener: PushMsgListener? = null

@@ -4,6 +4,9 @@ import androidx.annotation.NonNull;
 
 import com.example.domain.socket.ISocket;
 
+/**
+ *
+ */
 public class NativeSocketProxy implements ISocket {
 
     private final NativeSocket nativeSocket = new NativeSocket();
