@@ -3,6 +3,7 @@ package com.example.domain.socket.msgdealer
 import com.example.domain.ApiService
 import com.example.domain.base.GsonUtil
 import com.example.domain.logic.chat.IChatRoomRepository
+import com.example.domain.socket.Executor
 import com.example.domain.socket.ILogicAction
 import com.example.domain.socket.ISocketMsgDealer
 import com.example.domain.socket.OpConst
@@ -10,11 +11,15 @@ import com.example.domain.socket.RawDataOperator
 import java.util.Timer
 import java.util.TimerTask
 
+/**
+ * 根据 opTyoe消息类型，分发给不同 dealer 以及消息 发送回调的处理
+ */
 class MainRouter {
 
     private val msgDealerS: MutableList<ISocketMsgDealer> = ArrayList()
     private val seqCallbackMap: MutableMap<Long, ILogicAction.SeqCallback> = HashMap()
-
+    //防止一直收不到响应时，Callback会常驻内存
+    private val SEQCALLBACK_TIMEOUT_TIME = 2000L
     init {
         msgDealerS.add(BindUserDealer())
         msgDealerS.add(PushMsgDealer())
@@ -27,11 +32,8 @@ class MainRouter {
 
     fun putCallback(seq: Long, callback: ILogicAction.SeqCallback) {
         seqCallbackMap[seq] = callback
-//        Timer().schedule(object : TimerTask() {
-//            override fun run() {
-//                seqCallbackMap.remove(seq)
-//            }
-//        }, 2000L)
+        //超时删除seq
+        ApiService[Executor::class.java].runInMain({ seqCallbackMap.remove(seq) },SEQCALLBACK_TIMEOUT_TIME)
     }
 
     fun dealData(byteArray: ByteArray) {
