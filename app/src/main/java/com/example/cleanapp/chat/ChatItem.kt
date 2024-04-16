@@ -17,6 +17,10 @@ import com.example.domain.logic.chat.VRoomMsg
 import com.example.domain.logic.user.UserManager
 import com.example.domain.memostore.INVALID_UID
 import com.example.domain.memostore.InMemoDataCallback
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class ChatAdapter : Adapter<ChatItemVh>() {
     private val ITEM_TYPE_SYS = 1
@@ -28,11 +32,11 @@ class ChatAdapter : Adapter<ChatItemVh>() {
     private var loginUid = INVALID_UID
 
     init {
-        ApiService[ILoginUser::class.java].getUid(object : InMemoDataCallback<Int> {
-            override fun onLoadSuccess(data: Int) {
-                loginUid = data
+        CoroutineScope(Dispatchers.Main).launch {
+            ApiService[ILoginUser::class.java].getUid().collect {
+                loginUid = it
             }
-        })
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

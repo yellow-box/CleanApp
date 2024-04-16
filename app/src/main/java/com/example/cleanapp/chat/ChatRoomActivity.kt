@@ -12,6 +12,7 @@ import com.example.domain.device.IToast
 import com.example.domain.logic.chat.VRoomMsg
 import com.example.domain.memostore.INVALID_UID
 import com.example.domain.memostore.InMemoDataCallback
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ChatRoomActivity : AppCompatActivity(), IChatAction {
@@ -25,16 +26,17 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
         binding = ActivityChatRoomBinding.inflate(layoutInflater)
         setContentView(binding.root)
         roomId = intent.getIntExtra(ChatViewModel.PARAM_ROOM_ID, 0)
+        binding.roomTv.text = "$roomId"
         chatViewModel = ViewModelProvider(this, ChatViewModelFactory())[ChatViewModel::class.java]
         initEvent()
     }
 
     private fun initEvent() {
-        ApiService[ILoginUser::class.java].getUid(object : InMemoDataCallback<Int> {
-            override fun onLoadSuccess(data: Int) {
-                loginUid = data
+        lifecycleScope.launch {
+            ApiService[ILoginUser::class.java].getUid().collect {
+                loginUid = it
             }
-        })
+        }
         binding.chatContentRv.let {
             it.layoutManager = LinearLayoutManager(this)
             it.adapter = adapter
@@ -54,8 +56,10 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
                     is ChatState.RecNewMsg -> {
                         if (it.msg.sender == loginUid) {
                             showMyselfNewMsg(it.msg)
+                            scrollToLatest()
                         } else {
                             showNewOtherNewMsg(it.msg)
+                            scrollToLatest()
                         }
                     }
 
@@ -81,6 +85,10 @@ class ChatRoomActivity : AppCompatActivity(), IChatAction {
 
     override fun showNewOtherNewMsg(msg: VRoomMsg) {
         adapter.addData(msg)
+    }
+
+    private fun scrollToLatest() {
+        binding.chatContentRv.smoothScrollToPosition(adapter.itemCount)
     }
 
     override fun showErrorMsg(msg: String) {

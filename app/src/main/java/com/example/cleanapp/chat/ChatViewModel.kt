@@ -1,12 +1,22 @@
 package com.example.cleanapp.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.domain.common.Callback
+import com.example.domain.ApiService
+import com.example.domain.common.UseCaseCallback
+import com.example.domain.device.IToast
 import com.example.domain.logic.chat.ChatModelMapping
 import com.example.domain.logic.chat.IChatRoomRepository
+import com.example.domain.logic.chat.usecase.LoadRoomMsgSUseCase
 import com.example.domain.logic.chat.RoomMsg
+import com.example.domain.logic.chat.RoomMsgManager
+import com.example.domain.logic.chat.usecase.SendMsgUseCase
 import com.example.domain.logic.chat.VRoomMsg
+import com.example.domain.logic.chat.usecase.ReceiveNewMsgUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,40 +33,57 @@ class ChatViewModel(private val chatRoomRepository: IChatRoomRepository) : ViewM
         )
     )
     val chatStateFlow = _chatStateFlow as StateFlow<ChatState>
+    private val sendMsgUseCase = SendMsgUseCase(chatRoomRepository)
+    private val loadMsgUseCase = LoadRoomMsgSUseCase(chatRoomRepository)
+    private val receiveNewMsgUseCase = ReceiveNewMsgUseCase(chatRoomRepository)
 
     init {
-        chatRoomRepository.registerNewMsgListener(object : IChatRoomRepository.NewMsgListener {
-            override fun onReceiveNewMsg(roomMsg: RoomMsg) {
-                viewModelScope.launch {
-                    _chatStateFlow.emit(
-                        ChatState.RecNewMsg(
-                            roomId,
-                            ChatModelMapping.toViewModel(roomMsg)
-                        )
-                    )
+        receiveNewMsgUseCase.execute(0, object : UseCaseCallback<Flow<RoomMsg>?> {
+            override fun onResult(data: Flow<RoomMsg>?) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    viewModelScope.launch {
+                        data?.collect {
+                            _chatStateFlow.emit(
+                                ChatState.RecNewMsg(
+                                    roomId,
+                                    ChatModelMapping.toViewModel(it)
+                                )
+                            )
+                        }
+                    }
                 }
+            }
+
+            override fun onFail(code: Int, msg: String) {
+                ApiService[IToast::class.java].showToast(msg, 0)
             }
         })
     }
 
     fun initChatRoom(roomId: Int) {
-        chatRoomRepository.loadOldMsg(roomId, object : Callback<List<RoomMsg>> {
-            override fun call(data: List<RoomMsg>) {
+        loadMsgUseCase.execute(roomId, object : UseCaseCallback<Flow<List<RoomMsg>>?> {
+            override fun onResult(data: Flow<List<RoomMsg>>?) {
                 viewModelScope.launch {
-                    _chatStateFlow.emit(
-                        ChatState.InitChatRoomSuccess(
-                            roomId,
-                            ChatModelMapping.toViewModels(data)
+                    data?.collect {
+                        _chatStateFlow.emit(
+                            ChatState.InitChatRoomSuccess(
+                                roomId,
+                                ChatModelMapping.toViewModels(it)
+                            )
                         )
-                    )
+                    }
                 }
+            }
+
+            override fun onFail(code: Int, msg: String) {
+                ApiService[IToast::class.java].showToast(msg, 0)
             }
         })
     }
 
     fun sendMsg(msg: VRoomMsg) {
         viewModelScope.launch {
-            chatRoomRepository.sendMsg(msg.content, msg.roomId, msg.sender)
+            sendMsgUseCase.execute(ChatModelMapping.toDataModel(msg), null)
         }
     }
 

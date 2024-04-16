@@ -15,6 +15,9 @@ import com.example.domain.memostore.InMemoStore
 import com.example.domain.socket.Executor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class MemoStoreImpl : InMemoStore {
@@ -22,14 +25,6 @@ class MemoStoreImpl : InMemoStore {
     private val c = ApiService[IGlobalContextProvider::class.java] as Context
     override fun initSetting() {
 
-    }
-
-    override fun save(key: String, value: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            c.myDataStore.edit {
-                it[stringPreferencesKey(key)] = value
-            }
-        }
     }
 
     override fun save(key: String, value: Int) {
@@ -40,38 +35,21 @@ class MemoStoreImpl : InMemoStore {
         }
     }
 
-    override fun loadString(key: String, callback: InMemoDataCallback<String?>) {
-        val isInMain = Looper.myLooper() == Looper.getMainLooper()
+    override fun save(key: String, value: String) {
         CoroutineScope(Dispatchers.IO).launch {
             c.myDataStore.edit {
-                val s = it[stringPreferencesKey(key)]
-                val executor = ApiService[Executor::class.java]
-                if (isInMain) {
-                    executor.runInMain({ callback.onLoadSuccess(s) }, 0)
-                } else {
-                    executor.runInChild {
-                        callback.onLoadSuccess(s)
-                    }
-                }
+                it[stringPreferencesKey(key)] = value
             }
         }
     }
 
-    override fun loadInt(key: String, callback: InMemoDataCallback<Int?>) {
-        val isInMain = Looper.myLooper() == Looper.getMainLooper()
-        CoroutineScope(Dispatchers.IO).launch {
-            c.myDataStore.edit {
-                val s = it[intPreferencesKey(key)]
-                val executor = ApiService[Executor::class.java]
-                if (isInMain) {
-                    executor.runInMain({ callback.onLoadSuccess(s) }, 0)
-                } else {
-                    executor.runInChild {
-                        callback.onLoadSuccess(s)
-                    }
-                }
-            }
-        }
+
+    override fun loadString(key: String, defaultValue: String): Flow<String> {
+        return c.myDataStore.data.map { it[stringPreferencesKey(key)] ?: defaultValue }
+    }
+
+    override fun loadInt(key: String, defaultValue: Int): Flow<Int> {
+        return c.myDataStore.data.map { it[intPreferencesKey(key)] ?: defaultValue }
     }
 
 }

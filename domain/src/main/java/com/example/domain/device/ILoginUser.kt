@@ -1,17 +1,17 @@
 package com.example.domain.device
 
 import com.example.domain.Api
-import com.example.domain.memostore.InMemoDataCallback
+import kotlinx.coroutines.flow.Flow
 
 /**
  * 已登录用户的信息管理
  */
-interface ILoginUser:Api {
-    fun getUid(callback: InMemoDataCallback<Int>)
-    fun getName(callback: InMemoDataCallback<String?>)
+interface ILoginUser : Api {
+    fun getUid(): Flow<Int>
+    fun getName(): Flow<String>
 
 
-    fun login(uid:Int)
+    fun login(uid: Int)
 
     fun logOut()
 }

@@ -7,30 +7,20 @@ import com.example.domain.device.IToast
 import com.example.domain.socket.ILogicAction
 import com.example.domain.socket.OpConst
 import com.example.domain.socket.RawDataOperator
-import com.example.domain.socket.msgdealer.MainRouter
 import com.example.domain.socket.msgdealer.RawDataStruct
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 
 class ChatRoomRepository : IChatRoomRepository {
 
-    override fun registerNewMsgListener(l: IChatRoomRepository.NewMsgListener) {
-        RoomMsgManager.getManger().pushMsgListener = object : PushMsgListener {
-            override fun onPushMsg(roomMsg: RoomMsg) {
-                l.onReceiveNewMsg(roomMsg)
-            }
-        }
-    }
-
-    override fun loadOldMsg(roomId: Int, loadCallback: Callback<List<RoomMsg>>) {
-        RoomMsgManager.getManger().getMsgSByRoomId(roomId,object : Callback<List<RoomMsg>>{
-            override fun call(data: List<RoomMsg>) {
-                loadCallback.call(data)
-            }
-        })
-    }
+    override val newMsgFlow: Flow<RoomMsg>
+        get() = RoomMsgManager.getManger().pushMsgFlow
 
     override fun clear() {
-        RoomMsgManager.getManger().pushMsgListener = null
+
     }
 
     override fun sendMsg(content: String, roomId: Int, uid: Int) {
@@ -71,4 +61,8 @@ class ChatRoomRepository : IChatRoomRepository {
         }
     }
 
+
+    override fun loadOldMsg(roomId: Int): Flow<List<RoomMsg>> {
+        return RoomMsgManager.getManger().getMsgSByRoomId(roomId)
+    }
 }

@@ -9,6 +9,11 @@ import com.example.domain.memostore.InMemoDataCallback
 import com.example.domain.socket.msgdealer.BindUserData
 import com.example.domain.socket.msgdealer.MainRouter
 import com.example.domain.socket.msgdealer.RawDataStruct
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.net.SocketException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -30,16 +35,11 @@ class SocketManager : ILogicAction {
             override fun onConnect() {
                 sendHeartBeat()
                 startReadAlways()
-                ApiService[ILoginUser::class.java].getUid(object :InMemoDataCallback<Int>{
-                    override fun onLoadSuccess(data: Int) {
-                        bindUser(data)
+                CoroutineScope(Dispatchers.IO).launch {
+                    ApiService[ILoginUser::class.java].getUid().collect {
+                        bindUser(it)
                     }
-
-                    override fun onLoadFailed(msg: String) {
-
-                    }
-
-                })
+                }
             }
         })
     }
@@ -59,7 +59,7 @@ class SocketManager : ILogicAction {
 
     fun bindUser(uid: Int) {
         val dataOperator = ApiService[RawDataOperator::class.java] ?: return
-       val  outData = dataOperator.constructData(
+        val outData = dataOperator.constructData(
             RawDataStruct(
                 0L, OpConst.OP_BIND_USER,
                 GsonUtil.gson.toJson(BindUserData(uid)).toByteArray(), "bindUser"

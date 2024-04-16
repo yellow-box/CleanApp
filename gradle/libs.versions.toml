@@ -9,12 +9,12 @@ materialVer = "1.11.0"
 constraintlayoutVer = "2.1.4"
 navigationVer = "2.7.7"
 
-
 ## 基础组件
 gsonVer = "2.10.1"
 retrofit2Ver = "2.6.2"
 datastoreVer = "1.0.0"
 roomVer = "2.6.0"
+coroutinesVer = "1.6.4"
 
 junitVer = "4.13.2"
 mockito-coreVer = "5.10.0"
@@ -39,6 +39,7 @@ retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson", v
 room-runtime = {module ="androidx.room:room-runtime", version.ref="roomVer"}
 room-ktx = {module ="androidx.room:room-ktx", version.ref="roomVer"}
 room-compiler = {module = "androidx.room:room-compiler",version.ref="roomVer"}
+coroutine-core = {module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref="coroutinesVer"}
 
 junit = { module = "junit:junit", version.ref = "junitVer" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito-coreVer" }

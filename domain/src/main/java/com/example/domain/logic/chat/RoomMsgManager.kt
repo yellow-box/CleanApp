@@ -1,11 +1,28 @@
 package com.example.domain.logic.chat
 
 import com.example.domain.ApiService
-import com.example.domain.common.Callback
 import com.example.domain.db.DbCallback
 import com.example.domain.db.IChatMsgFetcher
 import com.example.domain.socket.msgdealer.MainRouter
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withContext
 import java.util.LinkedList
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -13,41 +30,46 @@ import java.util.concurrent.atomic.AtomicBoolean
  * 房间消息管理
  */
 class RoomMsgManager : IChatRoomRepository.NewMsgListener {
-    private val msgS: MutableMap<Int, MutableList<RoomMsg>> = HashMap()
-    var pushMsgListener: PushMsgListener? = null
+    val msgS: MutableMap<Int, MutableList<RoomMsg>> = ConcurrentHashMap()
     private var hasInit = AtomicBoolean(false)
-    private var loadCallbacks: MutableMap<Int, Callback<List<RoomMsg>>> = HashMap()
+    private val _pushMsgFlow = MutableSharedFlow<RoomMsg>()
+    val pushMsgFlow = _pushMsgFlow.asSharedFlow()
+    private val deferred = CompletableDeferred<Boolean>()
 
     init {
-        MainRouter.instance.addPushMsgListener(this)
-        ApiService[IChatMsgFetcher::class.java].loadAllRoomMsg(object : DbCallback<List<RoomMsg>> {
-            override fun onSuccess(data: List<RoomMsg>) {
-                loadAllRoomMsgFromDb(data)
-                invokeLoadCallbacks()
-                hasInit.set(true)
-            }
+        startListenRoomPushMsg()
+    }
 
-            override fun onFail(nsg: String) {
-                invokeLoadCallbacks()
-                println("RoomMsgManager load dbMsgS failed! ${nsg}")
-                hasInit.set(true)
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun startListenRoomPushMsg() {
+        GlobalScope.launch(Dispatchers.IO) {
+            MainRouter.instance.roomPushMsgSharedFlow?.collect {
+                saveMsg(it)
+                _pushMsgFlow.emit(it)
             }
+        }
+    }
 
-        })
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun loadDb(): CompletableDeferred<Boolean> {
+        GlobalScope.launch(Dispatchers.IO) {
+            if (!hasInit.get()) {
+                ApiService[IChatMsgFetcher::class.java].loadAllRoomMsg().collect {
+                    loadAllRoomMsgFromDb(it)
+                    hasInit.set(true)
+                    deferred.complete(true)
+                }
+            } else {
+                deferred.complete(true)
+            }
+        }
+        return deferred
     }
 
     companion object {
         private val instance by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { RoomMsgManager() }
         fun getManger(): RoomMsgManager {
             return instance
-        }
-    }
-
-    private fun invokeLoadCallbacks() {
-        val iterator = loadCallbacks.iterator()
-        iterator.forEach {
-            it.value.call(msgS[it.key] ?: emptyList())
-            iterator.remove()
         }
     }
 
@@ -67,18 +89,30 @@ class RoomMsgManager : IChatRoomRepository.NewMsgListener {
         }
     }
 
-    fun getMsgSByRoomId(roomId: Int, onCallback: Callback<List<RoomMsg>>) {
-        if (hasInit.get()) {
-            onCallback.call(msgS[roomId] ?: emptyList())
+    fun getMsgSByRoomId(roomId: Int): Flow<List<RoomMsg>> {
+        return if (hasInit.get()) {
+            flow {
+                emit(msgS[roomId] ?: emptyList())
+            }
         } else {
-            loadCallbacks[roomId] = onCallback
+            flow {
+                val deferred = loadDb()
+                deferred.await()
+                emit(msgS[roomId] ?: emptyList())
+            }
         }
     }
 
-    override fun onReceiveNewMsg(roomMsg: RoomMsg) {
+    private fun saveMsg(roomMsg: RoomMsg) {
         addRoomMsg(roomMsg)
         ApiService[IChatMsgFetcher::class.java].saveMsg(roomMsg, null)
-        pushMsgListener?.onPushMsg(roomMsg)
+    }
+
+    override fun onReceiveNewMsg(roomMsg: RoomMsg) {
+        saveMsg(roomMsg)
+        CoroutineScope(Dispatchers.IO).launch {
+            _pushMsgFlow.emit(roomMsg)
+        }
     }
 }
 

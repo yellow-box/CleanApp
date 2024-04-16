@@ -7,6 +7,8 @@ import com.example.domain.db.IChatMsgFetcher
 import com.example.domain.device.IGlobalContextProvider
 import com.example.domain.logic.chat.RoomMsg
 import com.example.nativelib.database.db.CleanDatabase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ChatMsgFetcher : IChatMsgFetcher {
     private val db: CleanDatabase by lazy {
@@ -21,15 +23,17 @@ class ChatMsgFetcher : IChatMsgFetcher {
         }
     }
 
-    override fun loadRoomMsgS(roomId: Int, callback: DbCallback<List<RoomMsg>>?) {
-        withCatch(callback) {
-            db.chatMsgDao().queryMsgSByRoomId(roomId).map { DBEntityMapping.dbMsgToMsg(it) }
+    override fun loadRoomMsgS(roomId: Int): Flow<List<RoomMsg>> {
+        return db.chatMsgDao().queryMsgSByRoomId(roomId).map { msgS ->
+            msgS.map { DBEntityMapping.dbMsgToMsg(it) }
         }
     }
 
-    override fun loadAllRoomMsg(callback: DbCallback<List<RoomMsg>>?) {
-        withCatch(callback) {
-            db.chatMsgDao().queryAllMsgS().map { DBEntityMapping.dbMsgToMsg(it) }
+    override fun loadAllRoomMsg(): Flow<List<RoomMsg>> {
+        return db.chatMsgDao().queryAllMsgS().map { msgS ->
+            msgS.map {
+                DBEntityMapping.dbMsgToMsg(it)
+            }
         }
     }
 

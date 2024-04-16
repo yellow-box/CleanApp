@@ -3,6 +3,17 @@ package com.example.domain.logic.user
 import com.example.domain.ApiService
 import com.example.domain.db.DbCallback
 import com.example.domain.db.IUserFetcher
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -11,19 +22,6 @@ import com.example.domain.db.IUserFetcher
 object UserManager {
     private val userS: MutableMap<Int, User> = HashMap()
     const val SystemUid = 1
-
-    init {
-        ApiService[IUserFetcher::class.java].loadAllUsers(object : DbCallback<List<User>> {
-            override fun onSuccess(data: List<User>) {
-                loadAllFromDb(data)
-            }
-
-            override fun onFail(nsg: String) {
-                println("UserManager load AllUser failed,$nsg")
-            }
-
-        })
-    }
 
     private fun loadAllFromDb(dbUsers: List<User>) {
         dbUsers.forEach {
@@ -36,27 +34,27 @@ object UserManager {
         ApiService[IUserFetcher::class.java].saveUser(user, null)
     }
 
-    fun get(uid: Int, callback: LoadUserCallback) {
+    fun get(uid: Int): Flow<User?> {
         val memUser = userS[uid]
-        if (memUser == null) {
-            ApiService[IUserFetcher::class.java].loadUser(uid, object : DbCallback<User?> {
-                override fun onSuccess(data: User?) {
-                    data?.let {
+        return if (memUser == null) {
+            val deferred = CompletableDeferred<Boolean>()
+            CoroutineScope(Dispatchers.IO).launch {
+                ApiService[IUserFetcher::class.java].loadUser(uid).collect {
+                    it?.let {
                         userS[it.uid] = it
-                        callback.onLoadUserSuccess(it)
                     }
-                    if (data == null) {
-                        callback.onLoadFail("no such user")
-                    }
+                    deferred.complete(true)
                 }
+            }
 
-                override fun onFail(nsg: String) {
-                    callback.onLoadFail(nsg)
-                }
-
-            })
+            flow {
+                deferred.await()
+                emit(userS[uid])
+            }.flowOn(Dispatchers.IO)
         } else {
-            callback.onLoadUserSuccess(memUser)
+            flow<User> {
+                emit(memUser)
+            }.flowOn(Dispatchers.IO)
         }
     }
 }

@@ -17,4 +17,17 @@ class RoomMsg {
 
     @SerializedName("msg_id")
     var msgId: String = ""
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is RoomMsg) return false
+        return roomId == other.roomId && content == other.content && sendUid == other.sendUid && msgId == other.msgId
+    }
+
+    override fun hashCode(): Int {
+        var result = roomId
+        result = 31 * result + content.hashCode()
+        result = 31 * result + sendUid
+        result = 31 * result + msgId.hashCode()
+        return result
+    }
 }

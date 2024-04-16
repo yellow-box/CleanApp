@@ -9,43 +9,17 @@ import com.example.domain.memostore.INVALID_UID
 import com.example.domain.memostore.InMemoDataCallback
 import com.example.domain.memostore.InMemoStore
 import com.example.domain.memostore.KEY_LOGIN_USER_ID
+import kotlinx.coroutines.flow.Flow
 
 class LoginUserDatasource : ILoginUser {
     private val inMemoStore: InMemoStore by lazy { ApiService[InMemoStore::class.java] }
 
-    override fun getUid(callback: InMemoDataCallback<Int>) {
-        inMemoStore.loadInt(KEY_LOGIN_USER_ID, object : InMemoDataCallback<Int?> {
-            override fun onLoadSuccess(data: Int?) {
-                callback.onLoadSuccess(data ?: INVALID_UID)
-            }
-
-            override fun onLoadFailed(msg: String) {
-                callback.onLoadFailed(msg)
-            }
-        })
+    override fun getUid(): Flow<Int> {
+        return inMemoStore.loadInt(KEY_LOGIN_USER_ID, INVALID_UID)
     }
 
-    override fun getName(callback: InMemoDataCallback<String?>) {
-        inMemoStore.loadInt(KEY_LOGIN_USER_ID, object : InMemoDataCallback<Int?> {
-            override fun onLoadSuccess(data: Int?) {
-                data?.let {
-                    UserManager.get(it, object : LoadUserCallback {
-                        override fun onLoadUserSuccess(u: User) {
-                            callback.onLoadSuccess(u.name)
-                        }
-
-                        override fun onLoadFail(msg: String) {
-                            callback.onLoadFailed(msg)
-                        }
-
-                    })
-                }
-            }
-
-            override fun onLoadFailed(msg: String) {
-                callback.onLoadFailed(msg)
-            }
-        })
+    override fun getName(): Flow<String> {
+        return inMemoStore.loadString(KEY_LOGIN_USER_ID, "no_name")
     }
 
     override fun login(uid: Int) {

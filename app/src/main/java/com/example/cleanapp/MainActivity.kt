@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import androidx.lifecycle.lifecycleScope
 import com.example.cleanapp.chat.ChatRoomActivity
 import com.example.cleanapp.chat.ChatViewModel
 import com.example.cleanapp.databinding.ActivityMainBinding
@@ -23,6 +24,10 @@ import com.example.domain.memostore.KEY_LOGIN_USER_ID
 import com.example.domain.socket.ILogicAction
 import com.example.nativelib.NativeSocketProxy
 import com.example.platformrelated.base.RealExecutor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -97,14 +102,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCurUid() {
-        ApiService[ILoginUser::class.java].getUid(object : InMemoDataCallback<Int> {
-            override fun onLoadSuccess(data: Int) {
-                binding.userIdEt.setText("$data")
+        lifecycleScope.launch {
+            ApiService[ILoginUser::class.java].getUid().collect {
+                binding.userIdEt.setText("$it")
             }
-
-            override fun onLoadFailed(msg: String) {
-                Log.d("MainActivity", "loadFailed")
-            }
-        })
+        }
     }
 }

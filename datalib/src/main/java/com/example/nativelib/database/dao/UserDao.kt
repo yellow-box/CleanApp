@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Update
 import com.example.nativelib.database.entity.DbUser
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
@@ -18,10 +19,10 @@ interface UserDao {
     fun updateUser(u: DbUser)
 
     @Query("select * from DbUser where :uid = id")
-    fun queryUser(uid: Int): DbUser
+    fun queryUser(uid: Int): Flow<DbUser?>
 
     @Query("select * from DbUser")
-    fun queryAllUser(): List<DbUser>
+    fun queryAllUser(): Flow<List<DbUser>>
 
     @Query("delete from DbUser where :uid == id ")
     fun remove(uid: Int)
