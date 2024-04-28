@@ -1,29 +1,20 @@
 package com.example.domain.logic.chat
+import com.example.libannotation.ClassMapping
 
 /**
  * 负责网络中的RoomMsg 数据与 view中的VRoomMsg之间的相互映射
  */
 object ChatModelMapping {
-    fun toViewModel(roomMsg: RoomMsg): VRoomMsg {
-        return VRoomMsg().apply {
-            roomId = roomMsg.roomId
-            sender = roomMsg.sendUid
-            content = roomMsg.content
-            msgId = roomMsg.msgId
-        }
-    }
+    private val modelMapping = ClassMapping.Builder(RoomMsgConvertor::class.java).build()
+    fun toViewModel(roomMsg: RoomMsg) = modelMapping.convert(roomMsg)
 
-    fun toDataModel(msg: VRoomMsg): RoomMsg {
-        return RoomMsg().apply {
-            roomId = msg.roomId
-            sendUid = msg.sender
-            content = msg.content
-        }
-    }
+
+    fun toDataModel(msg: VRoomMsg) = modelMapping.revers(msg)
+
 
     fun toViewModels(msgS: List<RoomMsg>): List<VRoomMsg> {
         return msgS.map {
-            toViewModel(it)
+            modelMapping.convert(it)
         }
     }
 }

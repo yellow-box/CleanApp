@@ -16,12 +16,15 @@ import com.example.datalib.socket.ChatSocket
 import com.example.domain.ApiService
 import com.example.domain.device.ILoginUser
 import com.example.domain.device.IToast
+import com.example.domain.est.IMsgMapping
+import com.example.domain.est.Msg
 import com.example.domain.logic.SocketInfo
 import com.example.domain.memostore.INVALID_UID
 import com.example.domain.memostore.InMemoDataCallback
 import com.example.domain.memostore.InMemoStore
 import com.example.domain.memostore.KEY_LOGIN_USER_ID
 import com.example.domain.socket.ILogicAction
+import com.example.libannotation.ClassMapping
 import com.example.nativelib.NativeSocketProxy
 import com.example.platformrelated.base.RealExecutor
 import kotlinx.coroutines.CoroutineScope
@@ -46,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         showCurUid()
         val spinnerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, socketItems)
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.socketSpinner.adapter = spinnerAdapter;
+        binding.socketSpinner.adapter = spinnerAdapter
     }
 
     private fun initEvent() {

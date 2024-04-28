@@ -1,6 +1,8 @@
 [versions]
 androidGradlePluginVer = "8.1.3"
 kotlin-androidPluginVer = "1.9.20"
+kotlinpoet-kspVer = "1.16.0"
+devtools-kspVer = "1.9.20-1.0.14"
 
 androidx-coreVer = "1.9.0"
 androidx-appcompatVer = "1.6.1"
@@ -27,13 +29,16 @@ androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx-cor
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompatVer" }
 material = { module = "com.google.android.material:material", version.ref = "materialVer" }
 
+devtools-ksp-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "devtools-kspVer" }
+kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet-kspVer" }
+
 constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVer" }
 navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationVer" }
 navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationVer" }
 
 ## 基础组件
-gson = {module = "com.google.code.gson:gson", version.ref="gsonVer"}
-datastore-preferences = {module = "androidx.datastore:datastore-preferences",version.ref="datastoreVer"}
+gson = { module = "com.google.code.gson:gson", version.ref = "gsonVer" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastoreVer" }
 retrofit2-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit2Ver" }
 retrofit2-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit2Ver" }
 room-runtime = {module ="androidx.room:room-runtime", version.ref="roomVer"}
@@ -55,6 +60,8 @@ android-gradle-application = { id = "com.android.application", version.ref = "an
 kotlin-android-plugin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-androidPluginVer" }
 kotlin-jvm-plugin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-androidPluginVer" }
 android-gradle-library = { id = "com.android.library", version.ref = "androidGradlePluginVer" }
+#ksp插件
+devtools-ksp={id="com.google.devtools.ksp", version.ref = "devtools-kspVer"}
 [bundles]
 # 定义一组依赖
-retrofit2 =["retrofit2-retrofit","retrofit2-converter-gson"]
+retrofit2 = ["retrofit2-retrofit", "retrofit2-converter-gson"]

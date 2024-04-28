@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("com.google.devtools.ksp") version "1.9.20-1.0.13"//引入ksp插件
+    alias(libs.plugins.devtools.ksp)
 //    alias(libs.plugins.android.gradle.library)
 }
 
