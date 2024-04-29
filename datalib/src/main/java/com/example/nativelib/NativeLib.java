@@ -16,5 +16,4 @@ public class NativeLib {
     public native String stringFromJNI();
     public native byte[] aes_enc(byte[] data, String key, String iv);
     public native byte[] aes_dec(byte[] data, String key, String iv);
-
 }

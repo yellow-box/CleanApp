@@ -16,6 +16,8 @@ extern "C"
 #define LOGE(tag, content)  __android_log_print(ANDROID_LOG_ERROR,tag,content)
 #define tag "CSocket"
 CSocket *nativeSocket = nullptr;
+char *rsa_private_key = nullptr;
+char *rsa_public_key = nullptr;
 
 int littleEndianToInt(unsigned char *data, int len) {
     if (len < 4) {
@@ -71,9 +73,9 @@ bool CSocket::isConnected() {
 
 void CSocket::connect(const char *ip, int port) {
     clientSocketFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    LOGD(tag,"start connect!");
+    LOGD(tag, "start connect!");
     if (clientSocketFd < 0) {
-        LOGD(tag,"Failed to create socket");
+        LOGD(tag, "Failed to create socket");
         return;
     }
     struct sockaddr_in serverAddr;
@@ -106,7 +108,7 @@ Java_com_example_nativelib_NativeSocket_connect(JNIEnv *env, jobject thiz, jstri
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_nativelib_NativeSocket_disconnect(JNIEnv *env, jobject thiz) {
-    if(nativeSocket != NULL) {
+    if (nativeSocket != NULL) {
         nativeSocket->disconnect();
         delete nativeSocket;
         nativeSocket = NULL;
@@ -171,14 +173,13 @@ Java_com_example_nativelib_NativeSocket_testNativeModifyByte(JNIEnv *env, jobjec
     env->ReleaseByteArrayElements(bytes, jbyteP, JNI_FALSE);
 }
 
-char* ConvertJByteaArrayToChars(JNIEnv *env, jbyteArray bytearray)
-{
+char *ConvertJByteaArrayToChars(JNIEnv *env, jbyteArray bytearray) {
     char *chars = NULL;
     jbyte *bytes;
     bytes = env->GetByteArrayElements(bytearray, 0);
     int chars_len = env->GetArrayLength(bytearray);
     chars = new char[chars_len + 1];
-    memset(chars,0,chars_len + 1);
+    memset(chars, 0, chars_len + 1);
     memcpy(chars, bytes, chars_len);
     chars[chars_len] = 0;
 
@@ -200,7 +201,7 @@ JNIEXPORT jbyteArray JNICALL
 Java_com_example_nativelib_NativeLib_aes_1enc(JNIEnv *env, jobject thiz, jbyteArray data,
                                               jstring key, jstring iv) {
     jsize len = env->GetArrayLength(data); // 获取数组长度
-    char *cdata = ConvertJByteaArrayToChars(env,data);
+    char *cdata = ConvertJByteaArrayToChars(env, data);
     const char *k = env->GetStringUTFChars(key, nullptr);
     const char *v = env->GetStringUTFChars(iv, nullptr);
     unsigned char *r = aes_enc(k, v, reinterpret_cast<const unsigned char *>(cdata), len);
@@ -212,7 +213,7 @@ JNIEXPORT jbyteArray JNICALL
 Java_com_example_nativelib_NativeLib_aes_1dec(JNIEnv *env, jobject thiz, jbyteArray data,
                                               jstring key, jstring iv) {
     jsize len = env->GetArrayLength(data); // 获取数组长度
-    char *cdata = ConvertJByteaArrayToChars(env,data);
+    char *cdata = ConvertJByteaArrayToChars(env, data);
     const char *k = env->GetStringUTFChars(key, nullptr);
     const char *v = env->GetStringUTFChars(iv, nullptr);
     unsigned char *r = aes_dec(k, v, reinterpret_cast<const unsigned char *>(cdata), len);

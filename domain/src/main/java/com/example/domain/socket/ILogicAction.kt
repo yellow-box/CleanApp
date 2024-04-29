@@ -15,7 +15,6 @@ interface ILogicAction : Api {
     fun write(byteArray: ByteArray, seq: Long, seqCallback: SeqCallback? = null)
 
     fun sendHeartBeat()
-
     interface SeqCallback {
         fun onSuccess()
 

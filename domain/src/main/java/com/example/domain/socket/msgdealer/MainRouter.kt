@@ -36,6 +36,8 @@ class MainRouter {
         msgDealerS.add(BindUserDealer())
         msgDealerS.add(PushMsgDealer())
         msgDealerS.add(SendAllRspDealer())
+        msgDealerS.add(ExchangeRsaDealer())
+        msgDealerS.add(SymmetricEncryptionDealer())
     }
 
     companion object {

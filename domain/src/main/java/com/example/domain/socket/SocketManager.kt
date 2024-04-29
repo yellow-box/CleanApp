@@ -5,15 +5,14 @@ import com.example.domain.ApiService
 import com.example.domain.base.GsonUtil
 import com.example.domain.base.printExceptionCallStack
 import com.example.domain.device.ILoginUser
-import com.example.domain.memostore.InMemoDataCallback
+import com.example.domain.security.CommunicateSate
+import com.example.domain.security.CommunicateStateManager
 import com.example.domain.socket.msgdealer.BindUserData
 import com.example.domain.socket.msgdealer.MainRouter
 import com.example.domain.socket.msgdealer.RawDataStruct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.net.SocketException
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -104,13 +103,34 @@ class SocketManager : ILogicAction {
                     val dataBuf = ByteArray(target)
                     sc.read(dataBuf)
                     val byteBuffer = ByteBuffer.wrap(dataBuf).order(ByteOrder.LITTLE_ENDIAN)
-                    //
+                    dispatchData(byteBuffer.array())
                     parseServeMsg(byteBuffer.array())
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
         }
+    }
+
+    private fun dispatchData(data: ByteArray): ByteArray {
+        when (CommunicateStateManager.state) {
+            CommunicateSate.ESTABLISH -> {
+
+            }
+
+            CommunicateSate.EXCHANGE_RSA -> {
+
+            }
+
+            CommunicateSate.SYMMETRIC_ENCRYPTION -> {
+
+            }
+
+            CommunicateSate.ENCRYPTION_COMMUNICATION -> {
+
+            }
+        }
+        return data
     }
 
     override fun isConnected(): Boolean {
