@@ -47,4 +47,28 @@ public class NativeSocketProxy implements ISocket {
     public boolean isConnected() {
         return nativeSocket.isConnected();
     }
+
+    @NonNull
+    @Override
+    public byte[] aes_enc(@NonNull byte[] byteArray, @NonNull String key, @NonNull String iv) {
+        return new byte[0];
+    }
+
+    @NonNull
+    @Override
+    public byte[] aes_dec(@NonNull byte[] byteArray, @NonNull String key, @NonNull String iv) {
+        return new byte[0];
+    }
+
+    @NonNull
+    @Override
+    public byte[] rsa_dec(@NonNull byte[] byteArray, @NonNull String path) {
+        return new byte[0];
+    }
+
+    @NonNull
+    @Override
+    public byte[] rsa_enc(@NonNull byte[] byteArray, @NonNull String path) {
+        return new byte[0];
+    }
 }

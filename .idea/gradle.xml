@@ -12,7 +12,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/datalib" />
             <option value="$PROJECT_DIR$/domain" />
-            <option value="$PROJECT_DIR$/nativelib" />
+            <option value="$PROJECT_DIR$/domain/libannotation" />
             <option value="$PROJECT_DIR$/platformrelated" />
           </set>
         </option>
