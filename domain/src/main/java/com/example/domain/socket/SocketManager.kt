@@ -104,6 +104,7 @@ class SocketManager : ILogicAction {
                     val dataBuf = ByteArray(target)
                     sc.read(dataBuf)
                     val byteBuffer = ByteBuffer.wrap(dataBuf).order(ByteOrder.LITTLE_ENDIAN)
+                    //
                     parseServeMsg(byteBuffer.array())
                 } catch (e: Exception) {
                     e.printStackTrace()

@@ -30,10 +30,8 @@ extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_nativelib_NativeLib_stringFromJNI(
         JNIEnv *env,
         jobject /* this */) {
-    std::string hello = "Hello from C++";
-//    LOGD("tag",  "f");
-//    const char *v = get_lib_version();
-    return env->NewStringUTF("Hello from C++");
+    const char *v = get_lib_version();
+    return env->NewStringUTF(v);
 }
 
 
@@ -171,4 +169,53 @@ Java_com_example_nativelib_NativeSocket_testNativeModifyByte(JNIEnv *env, jobjec
 
     //这里 mode 要传递0
     env->ReleaseByteArrayElements(bytes, jbyteP, JNI_FALSE);
+}
+
+char* ConvertJByteaArrayToChars(JNIEnv *env, jbyteArray bytearray)
+{
+    char *chars = NULL;
+    jbyte *bytes;
+    bytes = env->GetByteArrayElements(bytearray, 0);
+    int chars_len = env->GetArrayLength(bytearray);
+    chars = new char[chars_len + 1];
+    memset(chars,0,chars_len + 1);
+    memcpy(chars, bytes, chars_len);
+    chars[chars_len] = 0;
+
+    env->ReleaseByteArrayElements(bytearray, bytes, 0);
+
+    return chars;
+}
+
+jbyteArray charToJByteArray(JNIEnv *env, unsigned char *buf) {
+    size_t len = strlen(reinterpret_cast<const char *>(buf));
+    jbyteArray array = env->NewByteArray(len);
+    env->SetByteArrayRegion(array, 0, len, reinterpret_cast<jbyte *>(buf));
+    delete buf;
+    return array;
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_example_nativelib_NativeLib_aes_1enc(JNIEnv *env, jobject thiz, jbyteArray data,
+                                              jstring key, jstring iv) {
+    jsize len = env->GetArrayLength(data); // 获取数组长度
+    char *cdata = ConvertJByteaArrayToChars(env,data);
+    const char *k = env->GetStringUTFChars(key, nullptr);
+    const char *v = env->GetStringUTFChars(iv, nullptr);
+    unsigned char *r = aes_enc(k, v, reinterpret_cast<const unsigned char *>(cdata), len);
+    delete cdata;
+    return charToJByteArray(env, r);
+}
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_example_nativelib_NativeLib_aes_1dec(JNIEnv *env, jobject thiz, jbyteArray data,
+                                              jstring key, jstring iv) {
+    jsize len = env->GetArrayLength(data); // 获取数组长度
+    char *cdata = ConvertJByteaArrayToChars(env,data);
+    const char *k = env->GetStringUTFChars(key, nullptr);
+    const char *v = env->GetStringUTFChars(iv, nullptr);
+    unsigned char *r = aes_dec(k, v, reinterpret_cast<const unsigned char *>(cdata), len);
+    delete cdata;
+    return charToJByteArray(env, r);
 }

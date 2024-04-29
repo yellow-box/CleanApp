@@ -3,6 +3,7 @@ package com.example.datalib.socket
 import com.example.domain.base.printExceptionCallStack
 import com.example.domain.base.printlnCallStack
 import com.example.domain.socket.ISocket
+import com.example.nativelib.NativeLib
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,6 +27,22 @@ class ChatSocket : ISocket {
         reader = realSocket!!.getInputStream()
         writer = realSocket!!.getOutputStream()
         connectListener?.onConnect()
+    }
+
+    override fun aes_enc(byteArray: ByteArray, key: String, iv: String): ByteArray {
+        return NativeLib.instance.aes_enc(byteArray, key, iv)
+    }
+
+    override fun aes_dec(byteArray: ByteArray, key: String, iv: String): ByteArray {
+        return NativeLib.instance.aes_dec(byteArray, key, iv)
+    }
+
+    override fun rsa_dec(byteArray: ByteArray, path: String): ByteArray {
+        return byteArray
+    }
+
+    override fun rsa_enc(byteArray: ByteArray, path: String): ByteArray {
+        return byteArray
     }
 
 

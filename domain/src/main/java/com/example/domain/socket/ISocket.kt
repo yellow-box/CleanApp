@@ -5,7 +5,10 @@ package com.example.domain.socket
  */
 interface ISocket {
     fun connect(host: String, port: Int)
-
+    fun aes_enc(byteArray: ByteArray, key: String, iv: String): ByteArray
+    fun aes_dec(byteArray: ByteArray, key: String, iv: String): ByteArray
+    fun rsa_dec(byteArray: ByteArray, path: String): ByteArray
+    fun rsa_enc(byteArray: ByteArray, path: String): ByteArray
     fun disconnect()
 
     fun setOnConnectListener(l: ConnectListener)
