@@ -26,6 +26,7 @@ import com.example.domain.memostore.KEY_LOGIN_USER_ID
 import com.example.domain.socket.ILogicAction
 import com.example.libannotation.ClassMapping
 import com.example.nativelib.NativeSocketProxy
+import com.example.nativelib.security.SecurityImpl
 import com.example.platformrelated.base.RealExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,14 +80,14 @@ class MainActivity : AppCompatActivity() {
                     JAVA_SOCKET -> {
                         ApiService[ILogicAction::class.java].apply {
                             disconnect()
-                            initSetting(ChatSocket(), RealExecutor())
+                            initSetting(ChatSocket(), RealExecutor(),SecurityImpl())
                         }
                     }
 
                     C_SOCKET -> {
                         ApiService[ILogicAction::class.java].apply {
                             disconnect()
-                            initSetting(NativeSocketProxy(), RealExecutor())
+                            initSetting(NativeSocketProxy(), RealExecutor(),SecurityImpl())
                         }
                     }
 

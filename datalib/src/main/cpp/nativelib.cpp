@@ -16,8 +16,6 @@ extern "C"
 #define LOGE(tag, content)  __android_log_print(ANDROID_LOG_ERROR,tag,content)
 #define tag "CSocket"
 CSocket *nativeSocket = nullptr;
-char *rsa_private_key = nullptr;
-char *rsa_public_key = nullptr;
 
 int littleEndianToInt(unsigned char *data, int len) {
     if (len < 4) {
@@ -217,6 +215,28 @@ Java_com_example_nativelib_NativeLib_aes_1dec(JNIEnv *env, jobject thiz, jbyteAr
     const char *k = env->GetStringUTFChars(key, nullptr);
     const char *v = env->GetStringUTFChars(iv, nullptr);
     unsigned char *r = aes_dec(k, v, reinterpret_cast<const unsigned char *>(cdata), len);
+    delete cdata;
+    return charToJByteArray(env, r);
+}
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_example_nativelib_NativeLib_rsa_1enc(JNIEnv *env, jobject thiz, jbyteArray data,
+                                              jstring path) {
+    jsize len = env->GetArrayLength(data); // 获取数组长度
+    char *cdata = ConvertJByteaArrayToChars(env, data);
+    const char *cPath = env->GetStringUTFChars(path, 0);
+    unsigned char *r = rsa_enc(cPath, reinterpret_cast<const unsigned char *>(cdata), len);
+    delete cdata;
+    return charToJByteArray(env, r);
+}
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_com_example_nativelib_NativeLib_rsa_1dec(JNIEnv *env, jobject thiz, jbyteArray data,
+                                              jstring path) {
+    jsize len = env->GetArrayLength(data); // 获取数组长度
+    char *cdata = ConvertJByteaArrayToChars(env, data);
+    const char *cPath = env->GetStringUTFChars(path, 0);
+    unsigned char *r = rsa_dec(cPath, reinterpret_cast<const unsigned char *>(cdata), len);
     delete cdata;
     return charToJByteArray(env, r);
 }

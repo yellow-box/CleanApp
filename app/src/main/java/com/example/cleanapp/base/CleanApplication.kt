@@ -11,6 +11,7 @@ import com.example.domain.device.ILoginUser
 import com.example.domain.device.IToast
 import com.example.domain.logic.SocketInfo
 import com.example.domain.memostore.InMemoStore
+import com.example.domain.security.ISecurity
 import com.example.domain.socket.Executor
 import com.example.domain.socket.ILogicAction
 import com.example.domain.socket.RawDataOperator
@@ -20,6 +21,7 @@ import com.example.nativelib.NativeSocketProxy
 import com.example.nativelib.database.ChatMsgFetcher
 import com.example.nativelib.database.UserFetcher
 import com.example.nativelib.memorystore.MemoStoreImpl
+import com.example.nativelib.security.SecurityImpl
 import com.example.platformrelated.base.RealExecutor
 import com.example.platformrelated.base.ToastHelper
 
@@ -39,12 +41,13 @@ class CleanApplication : Application(), IGlobalContextProvider<Context> {
         socketRegister()
         inMemoryStoreRegister()
         dbFetcherRegister()
+        securityRegister()
         connectSocket()
     }
 
     private fun connectSocket() {
         val socketManger = ApiService[ILogicAction::class.java]
-        socketManger.initSetting(NativeSocketProxy(), RealExecutor())
+        socketManger.initSetting(NativeSocketProxy(), RealExecutor(), SecurityImpl())
         socketManger.connect(SocketInfo.ip, SocketInfo.port)
     }
 
@@ -71,6 +74,10 @@ class CleanApplication : Application(), IGlobalContextProvider<Context> {
 
     private fun inMemoryStoreRegister() {
         ApiService.register(InMemoStore::class.java, MemoStoreImpl())
+    }
+
+    private fun securityRegister() {
+        ApiService.register(ISecurity::class.java, SecurityImpl())
     }
 
 }

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.datalib.socket.ChatSocket
+import com.example.nativelib.security.SecurityImpl
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,9 +34,9 @@ class ExampleInstrumentedTest {
     @OptIn(ExperimentalEncodingApi::class)
     @Test
     fun test_aes_enc() {
-        val socket = ChatSocket()
+        val socket = SecurityImpl()
         val data = "Something to be encrypted".toByteArray()
-        val r = socket.aes_enc(data, "dvrugkq9amu7wj0s", "dvrugkq9amu7wj0s")
+        val r = socket.aes_enc(data)
         assert(r.contentEquals(Base64.decode("0e3pUSbOuSC/QITsJmLG22rTuGonjXdVTkMIRpAhlxo=")))
     }
 

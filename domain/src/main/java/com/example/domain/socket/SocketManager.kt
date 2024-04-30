@@ -7,6 +7,7 @@ import com.example.domain.base.printExceptionCallStack
 import com.example.domain.device.ILoginUser
 import com.example.domain.security.CommunicateSate
 import com.example.domain.security.CommunicateStateManager
+import com.example.domain.security.ISecurity
 import com.example.domain.socket.msgdealer.BindUserData
 import com.example.domain.socket.msgdealer.MainRouter
 import com.example.domain.socket.msgdealer.RawDataStruct
@@ -24,12 +25,14 @@ class SocketManager : ILogicAction {
 
     private var socket: ISocket? = null
     private var executor: Executor? = null
+    private var security: ISecurity? = null
     private val mainRouter by lazy { MainRouter.instance }
     private val dataSizeBuf = ByteArray(4)
 
-    override fun initSetting(socket: ISocket, executor: Executor) {
+    override fun initSetting(socket: ISocket, executor: Executor, security: ISecurity) {
         this.socket = socket
         this.executor = executor
+        this.security = security
         socket.setOnConnectListener(object : ISocket.ConnectListener {
             override fun onConnect() {
                 sendHeartBeat()
@@ -90,6 +93,22 @@ class SocketManager : ILogicAction {
         }
     }
 
+    override fun rsa_enc(byteArray: ByteArray): ByteArray {
+       return security?.rsa_enc(byteArray)?:ByteArray(0)
+    }
+
+    override fun rsa_dec(byteArray: ByteArray): ByteArray {
+        TODO("Not yet implemented")
+    }
+
+    override fun aes_enc(byteArray: ByteArray): ByteArray {
+        TODO("Not yet implemented")
+    }
+
+    override fun aes_dec(byteArray: ByteArray): ByteArray {
+        TODO("Not yet implemented")
+    }
+
 
     override fun startReadAlways() {
         executor?.runInChild {
@@ -103,7 +122,6 @@ class SocketManager : ILogicAction {
                     val dataBuf = ByteArray(target)
                     sc.read(dataBuf)
                     val byteBuffer = ByteBuffer.wrap(dataBuf).order(ByteOrder.LITTLE_ENDIAN)
-                    dispatchData(byteBuffer.array())
                     parseServeMsg(byteBuffer.array())
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -112,26 +130,6 @@ class SocketManager : ILogicAction {
         }
     }
 
-    private fun dispatchData(data: ByteArray): ByteArray {
-        when (CommunicateStateManager.state) {
-            CommunicateSate.ESTABLISH -> {
-
-            }
-
-            CommunicateSate.EXCHANGE_RSA -> {
-
-            }
-
-            CommunicateSate.SYMMETRIC_ENCRYPTION -> {
-
-            }
-
-            CommunicateSate.ENCRYPTION_COMMUNICATION -> {
-
-            }
-        }
-        return data
-    }
 
     override fun isConnected(): Boolean {
 //        println("soekt==null =${socket==null},socket.IsConected=${socket?.isConnected()}")
