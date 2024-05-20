@@ -3,6 +3,8 @@ package com.example.cleanapp
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -74,6 +76,35 @@ class MainActivity : AppCompatActivity() {
             )
             showCurUid()
         }
+        binding.serverIpEt.addTextChangedListener(object :TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                SocketInfo.ip = s.toString()
+            }
+
+        })
+
+        binding.serverPortEt.addTextChangedListener(object :TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                SocketInfo.port = s.toString().toInt()
+            }
+
+        })
         binding.socketSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>, p1: View?, p2: Int, p3: Long) {
                 when (p0.getItemAtPosition(p2)) {

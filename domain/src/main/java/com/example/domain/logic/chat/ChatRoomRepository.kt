@@ -3,6 +3,7 @@ package com.example.domain.logic.chat
 import com.example.domain.ApiService
 import com.example.domain.base.GsonUtil
 import com.example.domain.common.Callback
+import com.example.domain.db.IChatMsgFetcher
 import com.example.domain.device.IToast
 import com.example.domain.socket.ILogicAction
 import com.example.domain.socket.OpConst
@@ -63,6 +64,6 @@ class ChatRoomRepository : IChatRoomRepository {
 
 
     override fun loadOldMsg(roomId: Int): Flow<List<RoomMsg>> {
-        return RoomMsgManager.getManger().getMsgSByRoomId(roomId)
+        return ApiService[IChatMsgFetcher::class.java].loadRoomMsgS(roomId)
     }
 }

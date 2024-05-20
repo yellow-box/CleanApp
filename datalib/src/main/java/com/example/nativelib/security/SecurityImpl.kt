@@ -17,7 +17,10 @@ class SecurityImpl : ISecurity {
     private val context = ApiService[IGlobalContextProvider::class.java].getContext() as Application
     private val aesKey: String = ""
     private val aesIv: String = ""
-
+    private val rsaPubName= "rsa_pub"
+    private val rsaPriName ="rsa_pri"
+    private val targetRsaPubPath = "${context.dataDir.path}/$rsaPubName"
+    private val targetRsaPriPath = "${context.dataDir.path}/$rsaPriName"
     init {
         rsa_gen()
     }
@@ -31,11 +34,11 @@ class SecurityImpl : ISecurity {
     }
 
     override fun rsa_dec(byteArray: ByteArray): ByteArray {
-        return NativeLib.instance.rsa_dec(byteArray, context.dataDir.path + "rsa_pub")
+        return NativeLib.instance.rsa_dec(byteArray, targetRsaPubPath)
     }
 
     override fun rsa_enc(byteArray: ByteArray): ByteArray {
-        return NativeLib.instance.rsa_enc(byteArray, context.dataDir.path + "rsa_pri")
+        return NativeLib.instance.rsa_enc(byteArray, targetRsaPriPath)
     }
 
     override fun rsa_gen(): String {
@@ -48,15 +51,15 @@ class SecurityImpl : ISecurity {
     }
 
     private fun isKeyPairFileExist(): Boolean {
-        return (File(context.dataDir.path + "rsa_pub").exists() && File(context.dataDir.path + "rsa_pri").exists())
+        return (File(targetRsaPriPath).exists() && File(targetRsaPubPath).exists())
     }
 
     private fun saveKeyPairToFile() {
         ApiService[Executor::class.java].runInChild {
             context.assets.open("rsa_pub")
-                .copyTo(FileOutputStream(File(context.dataDir.path + "rsa_pub")))
+                .copyTo(FileOutputStream(File(targetRsaPubPath)))
             context.assets.open("rsa_pri")
-                .copyTo(FileOutputStream(File(context.dataDir.path + "rsa_pri")))
+                .copyTo(FileOutputStream(File(targetRsaPriPath)))
             Log.d("[security]", "save rsa key pair  to file ")
         }
     }
